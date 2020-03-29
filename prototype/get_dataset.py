@@ -1,3 +1,6 @@
 import numpy as np
 import chainer
-(train, test) = chainer.dataset.get_cifar10()
+
+def cifar10():
+    (train, test) = chainer.datasets.get_cifar10()
+    print(len(train))
