@@ -2,3 +2,4 @@ notebook/.ipynb_checkpoints/
 notebook/logs/
 prototype/result/
 /**/__pycache__/
+/**/.DS_Store
