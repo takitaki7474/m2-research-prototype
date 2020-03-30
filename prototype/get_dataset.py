@@ -1,4 +1,3 @@
-import numpy as np
 import chainer
 
 # cifar10の読み込み

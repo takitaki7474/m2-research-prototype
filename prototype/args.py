@@ -1,0 +1,11 @@
+import argparse
+
+def get_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--model_name', '-m', default='v1.model', type=str, help='This is model name')
+    parser.add_argument('--epoch', '-e', type=int, default=100, help='This is epoch')
+    parser.add_argument('--batchsize', '-b', type=int, default=128, help='This is batchsize')
+    parser.add_argument('--alpha', '-a', type=float, default=0.001, help='This is learning rate')
+    parser.add_argument('--gpu_id', '-gpu', type=int, default=-1, help='This is gpu id')
+    args = parser.parse_args()
+    return args
