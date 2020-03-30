@@ -7,10 +7,10 @@ def load_cifar10():
     return train, test
 
 # 特定クラスラベル画像の取得
-def get_specific_img(class_label, dataset):
-    specific_img = []
+def get_one_label_data(class_label, dataset):
+    new_data = []
     for data in dataset:
         label = data[1]
         if label == class_label:
-            specific_img.append(data)
-    return specific_img
+            new_data.append(data)
+    return new_data
