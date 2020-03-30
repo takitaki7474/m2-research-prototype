@@ -2,26 +2,27 @@ import chainer
 import chainer.links as L
 import chainer.functions as F
 
-class Cifar10Model(chainer.Chain):
+class Cifar10(chainer.Chain):
 
     def __init__(self, n_out=3):
-        super(Cifar10Model,self).__init__()
+        super(Cifar10, self).__init__()
         with self.init_scope():
-            conv1 = F.Convolution2D(3, 32, 3, pad=1),
-            conv2 = F.Convolution2D(32, 32, 3, pad=1),
-            conv3 = F.Convolution2D(32, 32, 3, pad=1),
-            conv4 = F.Convolution2D(32, 32, 3, pad=1),
-            conv5 = F.Convolution2D(32, 32, 3, pad=1),
-            conv6 = F.Convolution2D(32, 32, 3, pad=1),
-            l1 = L.Linear(512, 512),
-            l2 = L.Linear(512, n_out)
+            self.conv1 = L.Convolution2D(None, 32, 3, 3, 1)
+            self.conv2 = L.Convolution2D(32, 32, 3, 3, 1)
+            self.conv3 = L.Convolution2D(32, 32, 3, 3, 1)
+            self.conv4 = L.Convolution2D(32, 32, 3, 3, 1)
+            self.conv5 = L.Convolution2D(32, 32, 3, 3, 1)
+            self.conv6 = L.Convolution2D(32, 32, 3, 3, 1)
+            self.fc1 = L.Linear(None, 512)
+            self.fc2 = L.Linear(512, n_out)
 
-    def __call__(self, x, train=True):
+    def __call__(self, x):
         h = F.relu(self.conv1(x))
         h = F.max_pooling_2d(F.relu(self.conv2(h)), 2)
         h = F.relu(self.conv3(h))
         h = F.max_pooling_2d(F.relu(self.conv4(h)), 2)
         h = F.relu(self.conv5(h))
         h = F.max_pooling_2d(F.relu(self.conv6(h)), 2)
-        h = F.dropout(F.relu(self.l1(h)), train=train)
-        return self.l2(h)
+        h = F.dropout(F.relu(self.fc1(h)))
+        h = self.fc2(h)
+        return h
