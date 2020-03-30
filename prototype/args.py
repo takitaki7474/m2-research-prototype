@@ -1,5 +1,6 @@
 import argparse
 
+# コマンドライン引数をパース
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--model_name', '-m', default='v1.model', type=str, help='This is model name')
