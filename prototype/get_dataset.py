@@ -15,17 +15,17 @@ def get_one_label_data(class_label, dataset):
     return new_data
 
 # 特定クラスラベルのtrain, testデータセットを取得
-def get_one_label_dataset(class_label, train_dataset, test_dataset):
-    train = get_one_label_data(class_label, train_dataset)
-    test = get_one_label_data(class_label, test_dataset)
+def get_one_label_dataset(class_label, train, test):
+    train = get_one_label_data(class_label, train)
+    test = get_one_label_data(class_label, test)
     return train, test
 
 # 特定クラスラベルリストのtrain, testデータセットを取得
-def get_specific_label_dataset(class_label_list, train_dataset, test_dataset):
+def get_specific_label_dataset(class_label_list, train, test):
     new_train = []
     new_test = []
     for label in class_label_list:
-        train, test = get_one_label_dataset(label, train_dataset, test_dataset)
-        new_train += train
-        new_test += test
+        got_train, got_test = get_one_label_dataset(label, train, test)
+        new_train += got_train
+        new_test += got_test
     return new_train, new_test
