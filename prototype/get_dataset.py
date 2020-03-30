@@ -5,7 +5,7 @@ def load_cifar10():
     (train, test) = chainer.datasets.get_cifar10()
     return train, test
 
-# 特定クラスラベル画像の取得
+# 複数クラスラベルのデータセットから指定クラスラベルの1データセットを取得
 def get_one_label_data(class_label, dataset):
     new_data = []
     for data in dataset:
@@ -14,18 +14,32 @@ def get_one_label_data(class_label, dataset):
             new_data.append(data)
     return new_data
 
-# 特定クラスラベルのtrain, testデータセットを取得
+# 複数クラスラベルのデータセットから指定クラスラベルのtrain, testデータセットを取得
 def get_one_label_dataset(class_label, train, test):
     train = get_one_label_data(class_label, train)
     test = get_one_label_data(class_label, test)
     return train, test
 
-# 特定クラスラベルリストのtrain, testデータセットを取得
+# 1データセットのラベルを指定のラベルに変更
+def change_label_data(new_label, dataset):
+    new_data = []
+    for data in dataset:
+        new_data.append((data[0], new_label))
+    return new_data
+
+# train, testデータセットのラベルを指定のラベルに変更
+def change_label_dataset(new_label, train, test):
+    train = change_label_data(new_label, train)
+    test = change_label_data(new_label, test)
+    return train, test
+
+# 指定クラスラベルリストのtrain, testデータセットを取得
 def get_specific_label_dataset(class_label_list, train, test):
     new_train = []
     new_test = []
-    for label in class_label_list:
+    for i, label in enumerate(class_label_list):
         got_train, got_test = get_one_label_dataset(label, train, test)
+        got_train, got_test = change_label_dataset(i, got_train, got_test)
         new_train += got_train
         new_test += got_test
     return new_train, new_test

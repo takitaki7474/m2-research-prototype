@@ -6,7 +6,7 @@ import train as tr
 # 学習対象のネットワークを指定
 net = chainer_cifar10.Cifar10()
 # 使用するデータのクラスを指定
-class_label_list = [0,1,2]
+class_label_list = [1,2,7]
 
 if __name__=="__main__":
     # コマンドライン引数を取得
