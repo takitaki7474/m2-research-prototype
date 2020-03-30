@@ -14,3 +14,9 @@ def get_one_label_data(class_label, dataset):
         if label == class_label:
             new_data.append(data)
     return new_data
+
+# 特定クラスラベルのtrain, testデータセットを取得
+def get_one_label_dataset(class_label, train_dataset, test_dataset):
+    train = get_one_label_data(class_label, train_dataset)
+    test = get_one_label_data(class_label, test_dataset)
+    return train, test
