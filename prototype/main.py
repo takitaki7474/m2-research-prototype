@@ -3,6 +3,7 @@ import args
 import get_dataset
 import train as tr
 import log
+import sys
 
 # 学習対象のネットワークを指定
 net = chainer_cifar10.Cifar10()
@@ -12,6 +13,18 @@ class_label_list = [1,2,7]
 if __name__=="__main__":
     # コマンドライン引数を取得
     args = args.get_args()
+
+    # モデル名の確認
+    if args.model_name == "v1":
+        while (1):
+            val = input("The model name is 'v1', is it really OK? (y/n): ")
+            if val == "y" or val == "yes":
+                print("running")
+                break
+            elif val == "n" or val == "no":
+                print("finished")
+                sys.exit()
+
     # データ生成
     train, test = get_dataset.load_cifar10()
     train, test = get_dataset.get_specific_label_dataset(class_label_list, train, test)
