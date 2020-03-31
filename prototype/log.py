@@ -1,4 +1,5 @@
 import json
+import os
 
 def save_param(args, class_num, datasets):
     path = os.path.join("./result", args.model_name, "parameter.json")
@@ -16,4 +17,4 @@ def save_param(args, class_num, datasets):
     }
 
     with open(path, "w") as f:
-        json.dump(parameters, f)
+        json.dump(parameters, f, indent=4)
