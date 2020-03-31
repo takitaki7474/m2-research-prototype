@@ -2,6 +2,7 @@ from model import chainer_cifar10
 import args
 import get_dataset
 import train as tr
+import log
 
 # 学習対象のネットワークを指定
 net = chainer_cifar10.Cifar10()
@@ -14,5 +15,7 @@ if __name__=="__main__":
     # データ生成
     train, test = get_dataset.load_cifar10()
     train, test = get_dataset.get_specific_label_dataset(class_label_list, train, test)
+    # パラメータの記録
+    log.save_param(args, len(class_label_list), (train,test))
     # 訓練
     tr.train(args, net, train, test)
