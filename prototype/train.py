@@ -22,4 +22,4 @@ def train(args, net, train, test):
     trainer.extend(extensions.PlotReport(['main/accuracy', 'val/main/accuracy'], x_key='epoch', marker='.', file_name='accuracy.png'))
     trainer.run()
 
-    serializers.save_npz(os.path.join(args.model_path, args.model_name) + ".model", net)
+    serializers.save_npz(os.path.join("./learned_model/", args.model_name) + ".model", net)
