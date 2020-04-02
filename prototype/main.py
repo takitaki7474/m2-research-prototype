@@ -6,9 +6,9 @@ import log
 import sys
 
 # 学習対象のネットワークを指定
-net = chainer_cifar10.Cifar10_Conv2()
+net = chainer_cifar10.Cifar10_Conv6()
 # 使用するデータのクラスを指定
-class_label_list = [1,2,7]
+class_label_list = [0,1,2]
 
 # モデル名の確認
 def check_model_name(model_name):
