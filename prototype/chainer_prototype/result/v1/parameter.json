@@ -1,0 +1,10 @@
+{
+    "model_name": "v1",
+    "epoch": 200,
+    "batch_size": 128,
+    "learning rate": 0.001,
+    "class_num": 3,
+    "train_num": 15000,
+    "test_num": 3000,
+    "gpu_id": -1
+}
