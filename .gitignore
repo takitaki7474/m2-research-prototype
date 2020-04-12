@@ -1,6 +1,6 @@
 notebook/.ipynb_checkpoints/
 notebook/logs/
-prototype/result/
-/**/__pycache__/
-/**/.DS_Store
-prototype/learned_model/
+result/
+__pycache__
+.DS_Store
+learned_model/
