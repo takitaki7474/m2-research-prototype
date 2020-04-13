@@ -4,6 +4,9 @@ from torch.autograd import Variable
 import torch.optim as optim
 import torchvision
 import torchvision.transforms as transforms
+import numpy as np
+import matplotlib.pyplot as plt
+import os
 
 def train(args, net, train, test):
 
@@ -17,6 +20,11 @@ def train(args, net, train, test):
     train_acc_value = []
     test_loss_value = []
     test_acc_value = []
+
+    result_save_path = os.path.join("./result",args.model_name)
+    if not os.path.isdir(result_save_path):
+        os.mkdir(result_save_path)
+
 
     print("{0:<13}{1:<13}{2:<13}{3:<13}{4:<13}".format("epoch","train/loss","train/acc","test/loss","test/acc"))
 
@@ -65,6 +73,18 @@ def train(args, net, train, test):
 
         print("{0:<13}{1:<13.5f}{2:<13.5f}{3:<13.5f}{4:<13.5f}".format(epoch, out_result[0], out_result[1], out_result[2], out_result[3]))
         out_result = []
+
+    plt.figure(figsize=(6,6))
+    plt.plot(range(args.epoch), train_loss_value)
+    plt.plot(range(args.epoch), test_loss_value, c='#ed7700')
+    plt.xlim(0, args.epoch-1)
+    plt.ylim(bottom=0)
+    plt.xlabel('epoch')
+    plt.ylabel('loss')
+    plt.legend(['train loss', 'test loss'])
+    plt.title('loss')
+    plt.savefig(os.path.join(result_save_path, "loss.png"))
+    plt.clf()
 
 """
     for epoch in range(args.epoch):
