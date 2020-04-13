@@ -4,7 +4,7 @@ import torchvision
 import torchvision.transforms as transforms
 
 # Cifar10データセットをdata_pathにダウンロード
-def get_cifar10(data_path):
+def load_cifar10(data_path):
     transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
     train = torchvision.datasets.CIFAR10(root=data_path, train=True, download=True, transform=transform)
     test = torchvision.datasets.CIFAR10(root=data_path, train=False, download=True, transform=transform)

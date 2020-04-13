@@ -5,6 +5,8 @@ import train as tr
 import log
 import sys
 
+# データのダウンロード先のパスを指定
+data_path = "./data"
 # 学習対象のネットワークを指定
 net = chainer_cifar10.Cifar10_Conv6()
 # 使用するデータのクラスを指定
@@ -28,9 +30,9 @@ if __name__=="__main__":
     args = args.get_args()
     check_model_name(args.model_name)
     # データ生成
-    train, test = get_dataset.load_cifar10()
+    train, test = get_dataset.load_cifar10(data_path)
     train, test = get_dataset.get_specific_label_dataset(class_label_list, train, test, args.data_n)
     # 訓練
     tr.train(args, net, train, test)
     # パラメータの記録
-    log.save_param(args, net.__class__.__name__, class_label_list, (train,test))
+    #log.save_param(args, net.__class__.__name__, class_label_list, (train,test))

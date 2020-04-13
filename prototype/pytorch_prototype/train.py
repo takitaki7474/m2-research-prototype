@@ -3,7 +3,6 @@ import torch.nn as nn
 import torchvision
 import torchvision.transforms as transforms
 import torch.optim as optim
-import os
 
 """
 def train(args, net, train, test):
