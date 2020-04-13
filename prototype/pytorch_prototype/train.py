@@ -74,39 +74,13 @@ def train(args, net, train, test):
         print("{0:<13}{1:<13.5f}{2:<13.5f}{3:<13.5f}{4:<13.5f}".format(epoch, out_result[0], out_result[1], out_result[2], out_result[3]))
         out_result = []
 
-    plt.figure(figsize=(6,6))
+    plt.figure(figsize=(6,5))
     plt.plot(range(args.epoch), train_loss_value)
     plt.plot(range(args.epoch), test_loss_value, c='#ed7700')
-    plt.xlim(0, args.epoch-1)
     plt.ylim(bottom=0)
     plt.xlabel('epoch')
     plt.ylabel('loss')
     plt.legend(['train loss', 'test loss'])
-    plt.title('loss')
+    plt.grid()
     plt.savefig(os.path.join(result_save_path, "loss.png"))
     plt.clf()
-
-"""
-    for epoch in range(args.epoch):
-
-        running_loss = 0.0
-        for i, data in enumerate(trainloader, 0):
-
-            inputs, labels = data
-            inputs, labels = Variable(inputs), Variable(labels)
-
-            optimizer.zero_grad()
-
-            outputs = net(inputs)
-            loss = criterion(outputs, labels)
-            loss.backward()
-            optimizer.step()
-
-            running_loss += loss.item()
-
-            if i % 2000 == 1999:
-                print('[%d, %5d] loss: %.3f' %
-                      (epoch + 1, i + 1, running_loss / 2000))
-                running_loss = 0.0
-"""
-    #print('Finished Training')
