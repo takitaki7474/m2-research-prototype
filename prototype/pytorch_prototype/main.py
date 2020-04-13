@@ -37,4 +37,4 @@ if __name__=="__main__":
     # 訓練
     tr.train(args, net, train, test)
     # パラメータの記録
-    #log.save_param(args, net.__class__.__name__, class_label_list, (train,test))
+    log.save_param(args, net.__class__.__name__, class_label_list, (train,test))
