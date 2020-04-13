@@ -1,4 +1,4 @@
-from model import chainer_cifar10
+from model import pytorch_cifar10
 import args
 import get_dataset
 import train as tr
@@ -8,7 +8,7 @@ import sys
 # データのダウンロード先のパスを指定
 data_path = "./data"
 # 学習対象のネットワークを指定
-net = chainer_cifar10.Cifar10_Conv6()
+net = pytorch_cifar10.Cifar10_net()
 # 使用するデータのクラスを指定
 class_label_list = [1,2,8]
 
@@ -32,6 +32,8 @@ if __name__=="__main__":
     # データ生成
     train, test = get_dataset.load_cifar10(data_path)
     train, test = get_dataset.get_specific_label_dataset(class_label_list, train, test, args.data_n)
+    print("訓練データ数: ", len(train))
+    print("テストデータ数: ", len(test))
     # 訓練
     tr.train(args, net, train, test)
     # パラメータの記録

@@ -1,8 +1,9 @@
 import torch
 import torch.nn as nn
+from torch.autograd import Variable
+import torch.optim as optim
 import torchvision
 import torchvision.transforms as transforms
-import torch.optim as optim
 
 """
 def train(args, net, train, test):
@@ -52,6 +53,7 @@ def train(args, net, train, test):
             optimizer.step()
 
             running_loss += loss.data.item()
+
             if i % 2000 == 1999:
                 print('[%d, %5d] loss: %.3f' %
                       (epoch + 1, i + 1, running_loss / 2000))
