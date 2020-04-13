@@ -1,10 +1,11 @@
-import chainer
-import chainer.links as L
-import chainer.functions as F
-from chainer import iterators, training, optimizers, serializers
-from chainer.training import extensions
+import torch
+import torch.nn as nn
+import torchvision
+import torchvision.transforms as transforms
+import torch.optim as optim
 import os
 
+"""
 def train(args, net, train, test):
     net = L.Classifier(net)
     optimizer = optimizers.Adam(alpha=args.alpha).setup(net)
@@ -23,3 +24,39 @@ def train(args, net, train, test):
     trainer.run()
 
     serializers.save_npz(os.path.join("./learned_model/", args.model_name) + ".model", net)
+"""
+
+def train(args, net, train, test):
+
+    trainloader = torch.utils.data.DataLoader(train, batch_size=args.batch_size, shuffle=True, num_workers=2)
+    testloader = torch.utils.data.DataLoader(test, batch_size=args.batch_size, shuffle=False, num_workers=2)
+
+    trainiter = iter(trainloader)
+    testiter = iter(testloader)
+
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.SGD(net.parameters(), lr=args.alpha, momentum=0.9)
+
+    for epoch in range(args.epoch):
+
+        running_loss = 0.0
+        for i, data in enumerate(trainloader, 0):
+
+            inputs, labels = data
+
+            inputs, labels = Variable(inputs), Variable(labels)
+
+            optimizer.zero_grad()
+
+            outputs = net(inputs)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+
+            running_loss += loss.data.item()
+            if i % 2000 == 1999:
+                print('[%d, %5d] loss: %.3f' %
+                      (epoch + 1, i + 1, running_loss / 2000))
+                running_loss = 0.0
+
+    print('Finished Training')
