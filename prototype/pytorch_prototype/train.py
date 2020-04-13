@@ -43,7 +43,6 @@ def train(args, net, train, test):
         for i, data in enumerate(trainloader, 0):
 
             inputs, labels = data
-
             inputs, labels = Variable(inputs), Variable(labels)
 
             optimizer.zero_grad()

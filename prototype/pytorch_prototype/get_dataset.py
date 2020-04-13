@@ -1,4 +1,14 @@
 import random
+import torch
+import torchvision
+import torchvision.transforms as transforms
+
+# Cifar10データセットをdata_pathにダウンロード
+def get_cifar10(data_path):
+    transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+    train = torchvision.datasets.CIFAR10(root=data_path, train=True, download=True, transform=transform)
+    test = torchvision.datasets.CIFAR10(root=data_path, train=False, download=True, transform=transform)
+    return train, test
 
 # データセットからclass_labelのデータセットを取得
 # ex. class_label=1, dataset=[(data, 2),(data, 3),(data, 0) ...]
