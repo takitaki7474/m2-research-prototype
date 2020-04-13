@@ -71,10 +71,10 @@ def train(args, net, train, test):
         test_loss_value.append(sum_loss*args.batch_size/len(testloader.dataset))
         test_acc_value.append(float(sum_correct/sum_data_n))
 
-        print("{0:<13}{1:<13.5f}{2:<13.5f}{3:<13.5f}{4:<13.5f}".format(epoch, out_result[0], out_result[1], out_result[2], out_result[3]))
+        print("{0:<13}{1:<13.5f}{2:<13.5f}{3:<13.5f}{4:<13.5f}".format(epoch+1, out_result[0], out_result[1], out_result[2], out_result[3]))
         out_result = []
 
-    plt.figure(figsize=(6,5))
+    plt.figure(figsize=(7,5))
     plt.plot(range(args.epoch), train_loss_value)
     plt.plot(range(args.epoch), test_loss_value, c='#ed7700')
     plt.ylim(bottom=0)
@@ -83,4 +83,14 @@ def train(args, net, train, test):
     plt.legend(['train loss', 'test loss'])
     plt.grid()
     plt.savefig(os.path.join(result_save_path, "loss.png"))
+    plt.clf()
+
+    plt.plot(range(args.epoch), train_acc_value)
+    plt.plot(range(args.epoch), test_acc_value, c='#ed7700')
+    plt.ylim(bottom=0)
+    plt.xlabel('epoch')
+    plt.ylabel('accuracy')
+    plt.legend(['train acc', 'test acc'])
+    plt.grid()
+    plt.savefig(os.path.join(result_save_path, "accuracy.png"))
     plt.clf()
