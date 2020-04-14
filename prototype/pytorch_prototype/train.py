@@ -68,8 +68,6 @@ def train(args, net, train, test):
             _, predicted = outputs.max(1)
             sum_data_n += labels.size(0)
             sum_correct += (predicted == labels).sum().item()
-            loss.backward()
-            optimizer.step()
 
         out_result.append(sum_loss*args.batch_size/len(testloader.dataset))
         out_result.append(float(sum_correct/sum_data_n))
@@ -82,11 +80,11 @@ def train(args, net, train, test):
             "train accuracy": out_result[1],
             "test loss": out_result[2],
             "test accuracy": out_result[3]
-        })
+        }) # logの追加
         print("{0:<13}{1:<13.5f}{2:<13.5f}{3:<13.5f}{4:<13.5f}".format(epoch+1, out_result[0], out_result[1], out_result[2], out_result[3]))
         out_result = []
 
-    value_log(save_flag=1)
+    value_log(save_flag=1) # logの保存
     torch.save(net.state_dict(), model_save_path)
 
     plt.figure(figsize=(7,5))
@@ -109,3 +107,5 @@ def train(args, net, train, test):
     plt.grid()
     plt.savefig(os.path.join(result_save_path, "accuracy.png"))
     plt.clf()
+
+# def train_or_test(loader, optimizer, net, criterion):
