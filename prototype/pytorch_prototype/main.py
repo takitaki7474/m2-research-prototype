@@ -8,9 +8,9 @@ import sys
 # データのダウンロード先のパスを指定
 data_path = "./data"
 # 学習対象のネットワークを指定
-net = pytorch_cifar10.Cifar10_net(3)
+net = pytorch_cifar10.LeNet(3)
 # 使用するデータのクラスを指定
-class_label_list = [5,6,7]
+class_label_list = [1,2,8]
 # データのシャッフルの可否
 train_shuffle = True
 test_shuffle = False

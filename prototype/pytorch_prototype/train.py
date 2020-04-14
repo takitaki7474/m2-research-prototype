@@ -9,6 +9,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
+def lr_scheduling(epoch):
+    if epoch < 15:
+        return 1
+    elif epoch < 30:
+        return 0.1**1
+    elif epoch < 60:
+        return 0.1**2
+    else:
+        return 0.1**3
+
 def train(args, net, train, test):
 
     train_loss_value = []
@@ -29,8 +39,9 @@ def train(args, net, train, test):
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=args.alpha, momentum=0.9)
+    scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_scheduling)
 
-    print("{0:<13}{1:<13}{2:<13}{3:<13}{4:<13}".format("epoch","train/loss","train/acc","test/loss","test/acc"))
+    print("{0:<13}{1:<13}{2:<13}{3:<13}{4:<13}{5:<6}".format("epoch","train/loss","train/acc","test/loss","test/acc","lr"))
 
     for epoch in range(args.epoch):
 
@@ -50,6 +61,10 @@ def train(args, net, train, test):
             loss.backward()
             optimizer.step()
 
+        for param in optimizer.param_groups:
+            current_lr = param["lr"]
+
+        scheduler.step()
         result.append(sum_loss*args.batch_size/len(trainloader.dataset))
         result.append(float(sum_correct/sum_data_n))
         train_loss_value.append(sum_loss*args.batch_size/len(trainloader.dataset))
@@ -70,6 +85,7 @@ def train(args, net, train, test):
 
         result.append(sum_loss*args.batch_size/len(testloader.dataset))
         result.append(float(sum_correct/sum_data_n))
+        result.append(current_lr)
         test_loss_value.append(sum_loss*args.batch_size/len(testloader.dataset))
         test_acc_value.append(float(sum_correct/sum_data_n))
 
@@ -78,9 +94,10 @@ def train(args, net, train, test):
             "train loss": result[0],
             "train accuracy": result[1],
             "test loss": result[2],
-            "test accuracy": result[3]
+            "test accuracy": result[3],
+            "learning rate": result[4]
         }) # logの追加
-        print("{0:<13}{1:<13.5f}{2:<13.5f}{3:<13.5f}{4:<13.5f}".format(epoch+1, result[0], result[1], result[2], result[3]))
+        print("{0:<13}{1:<13.5f}{2:<13.5f}{3:<13.5f}{4:<13.5f}{5:<6.6f}".format(epoch+1, result[0], result[1], result[2], result[3], result[4]))
         result = []
 
     value_log(save_flag=1) # logの保存
