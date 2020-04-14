@@ -10,21 +10,22 @@ import os
 
 def train(args, net, train, test):
 
-    trainloader = torch.utils.data.DataLoader(train, batch_size=args.batch_size, shuffle=True, num_workers=2)
-    testloader = torch.utils.data.DataLoader(test, batch_size=args.batch_size, shuffle=False, num_workers=2)
-
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(net.parameters(), lr=args.alpha, momentum=0.9)
-
     train_loss_value = []
     train_acc_value = []
     test_loss_value = []
     test_acc_value = []
 
+    model_save_path = os.path.join("./learned_model", args.model_name + ".pth")
     result_save_path = os.path.join("./result",args.model_name)
+
     if not os.path.isdir(result_save_path):
         os.mkdir(result_save_path)
 
+    trainloader = torch.utils.data.DataLoader(train, batch_size=args.batch_size, shuffle=True, num_workers=2)
+    testloader = torch.utils.data.DataLoader(test, batch_size=args.batch_size, shuffle=False, num_workers=2)
+
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.SGD(net.parameters(), lr=args.alpha, momentum=0.9)
 
     print("{0:<13}{1:<13}{2:<13}{3:<13}{4:<13}".format("epoch","train/loss","train/acc","test/loss","test/acc"))
 
@@ -73,6 +74,8 @@ def train(args, net, train, test):
 
         print("{0:<13}{1:<13.5f}{2:<13.5f}{3:<13.5f}{4:<13.5f}".format(epoch+1, out_result[0], out_result[1], out_result[2], out_result[3]))
         out_result = []
+
+    torch.save(net.state_dict(), model_save_path)
 
     plt.figure(figsize=(7,5))
     plt.plot(range(args.epoch), train_loss_value)
