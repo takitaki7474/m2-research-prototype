@@ -34,7 +34,7 @@ def train(args, net, train, test):
 
     for epoch in range(args.epoch):
 
-        out_result = [] # 出力結果
+        result = [] # 出力結果
         sum_loss = 0.0  # lossの合計
         sum_correct = 0 # 正解数の合計
         sum_data_n = 0  # データ数の合計
@@ -50,11 +50,10 @@ def train(args, net, train, test):
             loss.backward()
             optimizer.step()
 
-        out_result.append(sum_loss*args.batch_size/len(trainloader.dataset))
-        out_result.append(float(sum_correct/sum_data_n))
+        result.append(sum_loss*args.batch_size/len(trainloader.dataset))
+        result.append(float(sum_correct/sum_data_n))
         train_loss_value.append(sum_loss*args.batch_size/len(trainloader.dataset))
         train_acc_value.append(float(sum_correct/sum_data_n))
-
 
         sum_loss = 0.0
         sum_correct = 0
@@ -69,23 +68,27 @@ def train(args, net, train, test):
             sum_data_n += labels.size(0)
             sum_correct += (predicted == labels).sum().item()
 
-        out_result.append(sum_loss*args.batch_size/len(testloader.dataset))
-        out_result.append(float(sum_correct/sum_data_n))
+        result.append(sum_loss*args.batch_size/len(testloader.dataset))
+        result.append(float(sum_correct/sum_data_n))
         test_loss_value.append(sum_loss*args.batch_size/len(testloader.dataset))
         test_acc_value.append(float(sum_correct/sum_data_n))
 
         value_log(log={
             "epoch": epoch+1,
-            "train loss": out_result[0],
-            "train accuracy": out_result[1],
-            "test loss": out_result[2],
-            "test accuracy": out_result[3]
+            "train loss": result[0],
+            "train accuracy": result[1],
+            "test loss": result[2],
+            "test accuracy": result[3]
         }) # logの追加
-        print("{0:<13}{1:<13.5f}{2:<13.5f}{3:<13.5f}{4:<13.5f}".format(epoch+1, out_result[0], out_result[1], out_result[2], out_result[3]))
-        out_result = []
+        print("{0:<13}{1:<13.5f}{2:<13.5f}{3:<13.5f}{4:<13.5f}".format(epoch+1, result[0], result[1], result[2], result[3]))
+        result = []
 
     value_log(save_flag=1) # logの保存
     torch.save(net.state_dict(), model_save_path)
+    plot_value(args, result_save_path, train_loss_value, test_loss_value, train_acc_value, test_acc_value)
+
+
+def plot_value(args, result_save_path, train_loss_value, test_loss_value, train_acc_value, test_acc_value):
 
     plt.figure(figsize=(7,5))
     plt.plot(range(args.epoch), train_loss_value)
@@ -107,5 +110,3 @@ def train(args, net, train, test):
     plt.grid()
     plt.savefig(os.path.join(result_save_path, "accuracy.png"))
     plt.clf()
-
-# def train_or_test(loader, optimizer, net, criterion):
