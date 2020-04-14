@@ -20,3 +20,17 @@ def save_param(args, net_name, class_label_list, datasets):
 
     with open(path, "w") as f:
         json.dump(parameters, f, indent=4)
+
+
+def save_log_func(args):
+    path = os.path.join("./result", args.model_name, "log.json")
+    log_list = []
+
+    def save_log(log=None, save_flag=0):
+        if save_flag == 0:
+            log_list.append(log)
+        elif save_flag == 1:
+            with open(path, "w") as f:
+                json.dump(log_list, f, indent=4)
+
+    return save_log

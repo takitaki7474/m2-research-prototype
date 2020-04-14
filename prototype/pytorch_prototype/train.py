@@ -1,3 +1,4 @@
+import log
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
@@ -14,6 +15,8 @@ def train(args, net, train, test):
     train_acc_value = []
     test_loss_value = []
     test_acc_value = []
+
+    value_log = log.save_log_func(args)
 
     model_save_path = os.path.join("./learned_model", args.model_name + ".pth")
     result_save_path = os.path.join("./result",args.model_name)
@@ -52,6 +55,7 @@ def train(args, net, train, test):
         train_loss_value.append(sum_loss*args.batch_size/len(trainloader.dataset))
         train_acc_value.append(float(sum_correct/sum_data_n))
 
+
         sum_loss = 0.0
         sum_correct = 0
         sum_data_n = 0
@@ -72,9 +76,17 @@ def train(args, net, train, test):
         test_loss_value.append(sum_loss*args.batch_size/len(testloader.dataset))
         test_acc_value.append(float(sum_correct/sum_data_n))
 
+        value_log(log={
+            "epoch": epoch+1,
+            "train loss": out_result[0],
+            "train accuracy": out_result[1],
+            "test loss": out_result[2],
+            "test accuracy": out_result[3]
+        })
         print("{0:<13}{1:<13.5f}{2:<13.5f}{3:<13.5f}{4:<13.5f}".format(epoch+1, out_result[0], out_result[1], out_result[2], out_result[3]))
         out_result = []
 
+    value_log(save_flag=1)
     torch.save(net.state_dict(), model_save_path)
 
     plt.figure(figsize=(7,5))
