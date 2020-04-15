@@ -10,9 +10,9 @@ import matplotlib.pyplot as plt
 import os
 
 def lr_scheduling(epoch):
-    if epoch < 15:
+    if epoch < 20:
         return 1
-    elif epoch < 30:
+    elif epoch < 40:
         return 0.1**1
     elif epoch < 60:
         return 0.1**2
@@ -52,7 +52,7 @@ def train(args, net, train, test):
 
         for (inputs, labels) in trainloader:
             optimizer.zero_grad()
-            outputs = net(inputs)
+            outputs, _ = net(inputs)
             loss = criterion(outputs, labels)
             sum_loss += loss.item()
             _, predicted = outputs.max(1)
@@ -76,7 +76,7 @@ def train(args, net, train, test):
 
         for (inputs, labels) in testloader:
             optimizer.zero_grad()
-            outputs = net(inputs)
+            outputs, _ = net(inputs)
             loss = criterion(outputs, labels)
             sum_loss += loss.item()
             _, predicted = outputs.max(1)

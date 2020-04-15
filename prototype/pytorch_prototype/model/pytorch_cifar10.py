@@ -22,7 +22,7 @@ class Cifar10_net(nn.Module):
         return x
 
 class LeNet(nn.Module):
-  def __init__(self, out):
+  def __init__(self, out=3):
     super(LeNet, self).__init__()
     self.conv1 = nn.Conv2d(3, 16, 3, 1, padding=1)
     self.conv2 = nn.Conv2d(16, 32, 3, 1, padding=1)
@@ -40,6 +40,7 @@ class LeNet(nn.Module):
     x = F.max_pool2d(x, 2, 2)
     x = x.view(-1, 4*4*64)
     x = F.relu(self.fc1(x))
+    feature = x
     x = self.dropout1(x)
     x = self.fc2(x)
-    return x
+    return x, feature
