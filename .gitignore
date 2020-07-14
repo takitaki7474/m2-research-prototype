@@ -4,9 +4,9 @@ notebook/logs/
 test_assets/
 
 # output
-**/result/*
+**/result/*/*
 **/learned_model/
-**/learned/*
+**/learned/*/*
 **/data/*
 
 !.gitkeep
