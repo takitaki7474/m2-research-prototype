@@ -49,3 +49,20 @@ class DataSelector:
             self.test = random.sample(self.test, data_num)
         elif shuffle == False:
             self.test = self.test[:data_num]
+
+    def __select_data_by_label(self, label):
+        selected = [[], []]
+        dataset = (self.train, self.test)
+        for i, t in enumerate(dataset):
+            for data in t:
+                if data[1] == label:
+                    selected[i].append(data)
+        return selected
+
+    def select_data_by_labels(self, labels):
+        selected = [[], []]
+        for label in labels:
+            result = self.__select_data_by_label(label)
+            selected[0] += result[0]
+            selected[1] += result[1]
+        self.train, self.test = selected
