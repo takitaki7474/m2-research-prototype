@@ -1,4 +1,5 @@
 import random
+from collections import defaultdict
 import torch
 import torchvision
 import torchvision.transforms as transforms
@@ -22,8 +23,9 @@ class DataSelector:
         return dataset
 
     def print_len(self):
+        print("------------------------------------------------------")
         print("訓練データ数:{0:>9}".format(len(self.train)))
-        print("テストデータ数:{0:>9}".format(len(self.test)))
+        print("テストデータ数:{0:>9}\n".format(len(self.test)))
 
     def print_len_by_label(self):
     texts = ["訓練データ", "テストデータ"]
