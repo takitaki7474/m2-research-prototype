@@ -28,17 +28,18 @@ class DataSelector:
         print("テストデータ数:{0:>9}\n".format(len(self.test)))
 
     def print_len_by_label(self):
-    texts = ["訓練データ", "テストデータ"]
-    for i, t in enumerate([self.train, self.test]):
-        dic = defaultdict(int)
-        for data in t:
-            dic[data[1]] += 1
-        print("{0}数  ----------------------------------------------".format(texts[i]))
-        count = 0
-        for key in dic.keys():
-            print("ラベル:  {0}    データ数:  {1}".format(key, dic[key]))
-            count += dic[key]
-        print("合計データ数:  {0}\n".format(count))
+        texts = ["訓練データ", "テストデータ"]
+        for i, t in enumerate([self.train, self.test]):
+            dic = defaultdict(int)
+            for data in t:
+                dic[data[1]] += 1
+            print("{0}数  ----------------------------------------------".format(texts[i]))
+            dic = sorted(dic.items())
+            count = 0
+            for key, value in dic:
+                print("ラベル:  {0}    データ数:  {1}".format(key, value))
+                count += value
+            print("合計データ数:  {0}\n".format(count))
 
     def select_train_at_random(self, data_num, shuffle=False):
         if shuffle == True:
