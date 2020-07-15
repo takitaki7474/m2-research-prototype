@@ -23,9 +23,9 @@ class DataSelector:
         return dataset
 
     def print_len(self):
-        print("------------------------------------------------------")
+        print("\n------------------------------------------------------")
         print("訓練データ数:{0:>9}".format(len(self.train)))
-        print("テストデータ数:{0:>9}\n".format(len(self.test)))
+        print("テストデータ数:{0:>9}".format(len(self.test)))
 
     def print_len_by_label(self):
         texts = ["訓練データ", "テストデータ"]
@@ -33,25 +33,26 @@ class DataSelector:
             dic = defaultdict(int)
             for data in t:
                 dic[data[1]] += 1
-            print("{0}数  ----------------------------------------------".format(texts[i]))
+            print("\n{0}数  ----------------------------------------------".format(texts[i]))
             dic = sorted(dic.items())
             count = 0
             for key, value in dic:
                 print("ラベル:  {0}    データ数:  {1}".format(key, value))
                 count += value
-            print("合計データ数:  {0}\n".format(count))
+            print("合計データ数:  {0}".format(count))
 
-    def select_train_at_random(self, data_num, shuffle=False):
-        if shuffle == True:
-            self.train = random.sample(self.train, data_num)
-        elif shuffle == False:
-            self.train = self.train[:data_num]
-
-    def select_test_at_random(self, data_num, shuffle=False):
-        if shuffle == True:
-            self.test = random.sample(self.test, data_num)
-        elif shuffle == False:
-            self.test = self.test[:data_num]
+    def randomly_select_data_by_label(self, data_num, train=True):
+        selected = []
+        dataset = self.train if train == True else self.test
+        dic = defaultdict(int)
+        for data in dataset:
+            if dic[data[1]] < data_num:
+                selected.append(data)
+                dic[data[1]] += 1
+        if train == True:
+            self.train = selected
+        else:
+            self.test = selected
 
     def __select_data_by_label(self, label):
         selected = [[], []]
