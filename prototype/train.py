@@ -6,7 +6,7 @@ import torch.optim as optim
 import plot
 
 def train(train, test, net, max_epoch, batch_size, initial_lr, lr_scheduling=None, plot_save_dir=None):
-    result = defaultdict(list)
+    record = defaultdict(list)
     trainloader = torch.utils.data.DataLoader(train, batch_size=batch_size, shuffle=True, num_workers=2)
     testloader = torch.utils.data.DataLoader(test, batch_size=batch_size, shuffle=False, num_workers=2)
     criterion = nn.CrossEntropyLoss()
@@ -36,8 +36,8 @@ def train(train, test, net, max_epoch, batch_size, initial_lr, lr_scheduling=Non
         lr = optimizer.param_groups[-1]["lr"]
         train_loss = sum_loss*batch_size/len(trainloader.dataset)
         train_acc = float(sum_correct/sum_data_num)
-        result["train_loss_list"].append(train_loss)
-        result["train_acc_list"].append(train_acc)
+        record["train_loss_list"].append(train_loss)
+        record["train_acc_list"].append(train_acc)
         # 学習モデルのテスト
         sum_loss = 0.0
         sum_correct = 0
@@ -51,15 +51,15 @@ def train(train, test, net, max_epoch, batch_size, initial_lr, lr_scheduling=Non
             sum_correct += (predicted == labels).sum().item()
         test_loss = sum_loss*batch_size/len(testloader.dataset)
         test_acc = float(sum_correct/sum_data_num)
-        result["test_loss_list"].append(test_loss)
-        result["test_acc_list"].append(test_acc)
+        record["test_loss_list"].append(test_loss)
+        record["test_acc_list"].append(test_acc)
 
         print("{0:<13}{1:<13.5f}{2:<13.5f}{3:<13.5f}{4:<13.5f}{5:<6.6f}".format(epoch+1, train_loss, train_acc, test_loss, test_acc, lr))
-
+"""
     if plot_save_dir is not None:
         loss_save_path = os.path.join(plot_save_dir, "loss.png")
-        plot.plot_loss(result["train_loss_list"], result["test_loss_list"], loss_save_path)
+        plot.plot_loss(record["train_loss_list"], record["test_loss_list"], loss_save_path)
         acc_save_path = os.path.join(plot_save_dir, "accuracy.png")
-        plot.plot_acc(result["train_acc_list"], result["test_acc_list"], loss_save_path)
-
-    return net
+        plot.plot_acc(record["train_acc_list"], record["test_acc_list"], loss_save_path)
+"""
+    return net, record
