@@ -11,7 +11,6 @@ def load_cifar10(download_path):
     test = torchvision.datasets.CIFAR10(root=download_path, train=False, download=True, transform=transform)
     return train, test
 
-
 class DataSelector:
 
     def __init__(self, train, test):
@@ -70,3 +69,19 @@ class DataSelector:
             selected[0] += result[0]
             selected[1] += result[1]
         self.train, self.test = selected
+
+    def update_labels(self):
+        updated = [[], []]
+        label_mapping = defaultdict(lambda: -1)
+        for i, t in enumerate([self.train, self.test]):
+            t = sorted(t, key=lambda x:x[1])
+            new_label = 0
+            for data in t:
+                if label_mapping[data[1]] == -1:
+                    label_mapping[data[1]] = new_label
+                    new_label += 1
+                updated[i].append((data[0], label_mapping[data[1]]))
+        self.train, self.test = updated
+        print("\nラベルを変更しました.  ----------------------------------------------")
+        for key, value in label_mapping.items():
+            print("ラベル  {0} -> {1}".format(key, value))
