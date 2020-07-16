@@ -1,13 +1,5 @@
 import matplotlib.pyplot as plt
 
-"""
-    if plot_save_dir is not None:
-        loss_save_path = os.path.join(plot_save_dir, "loss.png")
-        plot.plot_loss(record["train_loss_list"], record["test_loss_list"], loss_save_path)
-        acc_save_path = os.path.join(plot_save_dir, "accuracy.png")
-        plot.plot_acc(record["train_acc_list"], record["test_acc_list"], loss_save_path)
-"""
-
 # lossのplot
 def plot_loss(train_loss_list, test_loss_list, save_path):
     max_axisX = len(train_loss_list)

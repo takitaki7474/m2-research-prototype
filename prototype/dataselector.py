@@ -11,7 +11,6 @@ def load_cifar10(download_path):
     test = torchvision.datasets.CIFAR10(root=download_path, train=False, download=True, transform=transform)
     return train, test
 
-
 class DataSelector:
 
     def __init__(self, train, test):
