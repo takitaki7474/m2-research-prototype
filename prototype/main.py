@@ -4,7 +4,10 @@ import torch
 from model import models
 import dataselector
 from dataselector import DataSelector
+import paramlogging
+from paramlogging import ParamLogging
 import training
+import plot
 
 DOWNLOAD_DIR = "./data/"
 RESULT_TARGET_DIR = "./result/target_model/"
@@ -23,6 +26,12 @@ def get_args():
     args = parser.parse_args()
     return args
 
+def lr_scheduling(epoch):
+    if epoch < 5:
+        return 1
+    else:
+        return 0.1
+
 if __name__=="__main__":
     args = get_args()
     classes = [1,2,8]
@@ -30,6 +39,8 @@ if __name__=="__main__":
     # 保存ディレクトリの生成
     dir = os.path.join(RESULT_TARGET_DIR, args.model_name)
     if not os.path.isdir(dir): os.mkdir(dir)
+    # モデルの初期設定のログ
+    paramlogging.log_setting(args, net, classes, os.path.join(RESULT_TARGET_DIR, args.model_name, "setting.json"))
     # データ選択
     train, test = dataselector.load_cifar10(DOWNLOAD_DIR)
     data_selector = DataSelector(train, test)
@@ -40,6 +51,11 @@ if __name__=="__main__":
     data_selector.print_len_by_label()
     train, test = data_selector.get_dataset()
     # 学習モデルの訓練
-    net, record = training.train(train, test, net, args.epoch, args.batch_size, args.lr)
+    logging = ParamLogging()
+    net, record = training.train(train, test, net, args.epoch, args.batch_size, args.lr, lr_scheduling=lr_scheduling, logging=logging)
+    logging.save(os.path.join(RESULT_TARGET_DIR, args.model_name, "log.json"))
+    # 学習結果のplot
+    plot.plot_loss(record["train_loss"], record["test_loss"], os.path.join(RESULT_TARGET_DIR, args.model_name, "loss.png"))
+    plot.plot_acc(record["train_acc"], record["test_acc"], os.path.join(RESULT_TARGET_DIR, args.model_name, "accuracy.png"))
     # 学習モデルの保存
     torch.save(net.state_dict(), os.path.join(LEARNED_TARGET_DIR, args.model_name + ".pth"))
