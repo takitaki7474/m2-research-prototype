@@ -9,8 +9,8 @@ def log_setting(args, net, classes, save_path):
     "batch_size": args.batch_size,
     "initial_lr": args.lr,
     "classes": classes,
-    "train_num": args.train_num,
-    "test_num": args.test_num,
+    "train_num_by_label": args.train_num,
+    "test_num_by_label": args.test_num,
     }
     with open(save_path, "w") as f:
         json.dump(setting, f, indent=4)

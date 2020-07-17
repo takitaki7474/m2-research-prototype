@@ -1,13 +1,15 @@
 import argparse
 import os
+import sys
 import torch
-from model import models
+from common import check
 import dataselector
 from dataselector import DataSelector
+from model import models
 import paramlogging
 from paramlogging import ParamLogging
-import training
 import plot
+import training
 
 DOWNLOAD_DIR = "./data/"
 RESULT_TARGET_DIR = "./result/target_model/"
@@ -27,16 +29,23 @@ def get_args():
     return args
 
 def lr_scheduling(epoch):
-    if epoch < 5:
+    if epoch < 20:
         return 1
+    elif epoch < 40:
+        return 0.1**1
+    elif epoch < 60:
+        return 0.1**2
     else:
-        return 0.1
+        return 0.1**3
 
 if __name__=="__main__":
     args = get_args()
     classes = [1,2,8]
     net = models.LeNet(len(classes))
     # 保存ディレクトリの生成
+    if not check.should_overwrite_model(os.path.join(RESULT_TARGET_DIR, args.model_name)):
+        print("Execution interruption")
+        sys.exit()
     dir = os.path.join(RESULT_TARGET_DIR, args.model_name)
     if not os.path.isdir(dir): os.mkdir(dir)
     # モデルの初期設定のログ
