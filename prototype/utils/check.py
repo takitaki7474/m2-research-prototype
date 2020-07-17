@@ -8,3 +8,5 @@ def should_overwrite_model(dir):
                 return True
             elif ans == "n" or ans == "no":
                 return False
+    else:
+        return True
