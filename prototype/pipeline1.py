@@ -1,3 +1,4 @@
+# フィーチャ抽出器生成デモ
 import os
 import configparser
 import sys
@@ -6,19 +7,19 @@ import argument
 from utils import check
 import dataselector
 import lr_patterns
-from model import target_models
+from model import pre_models
 import paramlogging
 import plot
 import training
 
 if __name__=="__main__":
     inifile = configparser.SafeConfigParser()
-    inifile.read('./settings.ini')
-    result_save_dir = inifile.get("OutputDirectories", "result_targetmodel")
-    learned_save_dir = inifile.get("OutputDirectories", "learned_targetmodel")
+    inifile.read("./settings.ini")
+    result_save_dir = inifile.get("OutputDirectories", "result_premodel")
+    learned_save_dir = inifile.get("OutputDirectories", "learned_premodel")
     args = argument.get_args()
     classes = [1,2,8]
-    net = target_models.LeNet(len(classes))
+    net = pre_models.PreLeNet(len(classes))
     # 保存ディレクトリの生成
     if not check.should_overwrite_model(os.path.join(result_save_dir, args.model_name)):
         print("Execution interruption")
@@ -31,8 +32,6 @@ if __name__=="__main__":
     train, test = dataselector.load_cifar10(inifile.get("OutputDirectories", "download"))
     data_selector = dataselector.DataSelector(train, test)
     data_selector.select_data_by_labels(classes)
-    data_selector.randomly_select_data_by_label(args.train_num, train=True)
-    data_selector.randomly_select_data_by_label(args.test_num, train=False)
     data_selector.update_labels()
     data_selector.print_len_by_label()
     train, test = data_selector.get_dataset()
