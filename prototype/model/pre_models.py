@@ -15,7 +15,7 @@ class PreLeNet(nn.Module):
         x = F.relu(self.conv2(x))
         x = F.max_pool2d(x, 2, 2) # (4) 16*16*32 -> 8*8*32
         feature = self.gap(x) # 1*1*32
-        feature = feature.view(-1, 32)[0].data # 1*32
+        feature = feature.view(-1, 32) # 1*32
         x = x.view(-1, 8*8*32)
         x = F.relu(self.fc1(x))
         return x, feature
