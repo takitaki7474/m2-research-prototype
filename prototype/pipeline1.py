@@ -6,6 +6,7 @@ import torch
 import argument
 from utils import check
 import dataselector
+import feature_extraction
 import lr_patterns
 from model import pre_models
 import paramlogging
@@ -45,3 +46,6 @@ if __name__=="__main__":
     # 学習モデルの保存
     model_path = os.path.join(learned_save_dir, args.model_name + ".pth")
     torch.save(net.state_dict(), model_path)
+    # フィーチャ抽出と保存
+    feature_table = feature_extraction.make_feature_table(net, model_path, train, args.batch_size)
+    feature_extraction.save_feature_table(feature_table, "features.db", "feature_table")
