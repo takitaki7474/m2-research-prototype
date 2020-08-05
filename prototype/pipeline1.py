@@ -6,6 +6,7 @@ import torch
 import argument
 from utils import check
 import dataselector
+import feature_extraction
 import lr_patterns
 from model import pre_models
 import paramlogging
@@ -43,4 +44,8 @@ if __name__=="__main__":
     plot.plot_loss(record["train_loss"], record["test_loss"], os.path.join(result_save_dir, args.model_name, "loss.png"))
     plot.plot_acc(record["train_acc"], record["test_acc"], os.path.join(result_save_dir, args.model_name, "accuracy.png"))
     # 学習モデルの保存
-    torch.save(net.state_dict(), os.path.join(learned_save_dir, args.model_name + ".pth"))
+    model_path = os.path.join(learned_save_dir, args.model_name + ".pth")
+    torch.save(net.state_dict(), model_path)
+    # フィーチャ抽出と保存
+    feature_table = feature_extraction.make_feature_table(net, model_path, train, args.batch_size)
+    feature_extraction.save_feature_table(feature_table, "features.db", "feature_table")
