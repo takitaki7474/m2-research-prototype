@@ -48,4 +48,5 @@ if __name__=="__main__":
     torch.save(net.state_dict(), model_path)
     # フィーチャ抽出と保存
     feature_table = feature_extraction.make_feature_table(net, model_path, train, args.batch_size)
-    feature_extraction.save_feature_table(feature_table, "features_" + args.model_name + ".db", "feature_table")
+    feature_path = os.path.join("feature_tables", "features_" + args.model_name + ".db")
+    feature_extraction.save_feature_table(feature_table, feature_path, "feature_table")
