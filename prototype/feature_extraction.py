@@ -5,6 +5,7 @@ import sqlite3
 import torch
 
 def make_feature_table(net, model_path, dataset, batch_size):
+    print("\nextracting features ...")
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=2)
     net.load_state_dict(torch.load(model_path))
     d = defaultdict(list)
@@ -24,3 +25,4 @@ def save_feature_table(df, dbname, tablename):
     c = conn.cursor()
     df.to_sql(tablename, conn, if_exists='replace')
     conn.close()
+    print("\nfeature extraction completed")
