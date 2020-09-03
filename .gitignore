@@ -8,7 +8,7 @@ test_assets/
 **/learned_model/
 **/learned/*/*
 **/data/*
-.db
+*.db
 
 !.gitkeep
 
