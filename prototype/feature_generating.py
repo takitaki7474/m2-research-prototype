@@ -1,4 +1,4 @@
-# フィーチャ抽出器生成デモ
+# フィーチャ抽出器生成とフィーチャ抽出
 import os
 import configparser
 import sys
@@ -36,16 +36,16 @@ if __name__=="__main__":
     data_selector.update_labels()
     data_selector.print_len_by_label()
     train, test = data_selector.get_dataset()
-    # 学習モデルの訓練
+    # フィーチャ抽出モデルの訓練
     logging = paramlogging.ParamLogging()
     net, record = training.train(train, test, net, args.epoch, args.batch_size, args.lr, lr_scheduling=lr_patterns.lr_v1, logging=logging)
     logging.save(os.path.join(result_save_dir, args.model_name, "log.json"))
     # 学習結果のplot
     plot.plot_loss(record["train_loss"], record["test_loss"], os.path.join(result_save_dir, args.model_name, "loss.png"))
     plot.plot_acc(record["train_acc"], record["test_acc"], os.path.join(result_save_dir, args.model_name, "accuracy.png"))
-    # 学習モデルの保存
+    # フィーチャ抽出モデルの保存
     model_path = os.path.join(learned_save_dir, args.model_name + ".pth")
     torch.save(net.state_dict(), model_path)
     # フィーチャ抽出と保存
     feature_table = feature_extraction.make_feature_table(net, model_path, train, args.batch_size)
-    feature_extraction.save_feature_table(feature_table, "features.db", "feature_table")
+    feature_extraction.save_feature_table(feature_table, "features_" + args.model_name + ".db", "feature_table")
