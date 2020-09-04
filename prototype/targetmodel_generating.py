@@ -1,3 +1,4 @@
+# 本番学習モデルの生成
 import os
 import configparser
 import sys
