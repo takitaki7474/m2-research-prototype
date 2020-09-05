@@ -1,6 +1,7 @@
 # notebook
 notebook/.ipynb_checkpoints/
 notebook/logs/
+notebook/selected/
 test_assets/
 
 # output
