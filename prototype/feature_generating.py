@@ -5,7 +5,7 @@ import sys
 import torch
 import argument
 from utils import check
-import dataselector
+import data_selector
 import feature_extraction
 import lr_patterns
 from model import pre_models
@@ -30,12 +30,12 @@ if __name__=="__main__":
     # モデルの初期設定のログ
     paramlogging.log_setting(args, net, classes, os.path.join(result_save_dir, args.model_name, "model_setting.json"))
     # データ選択
-    train, test = dataselector.load_cifar10(inifile.get("OutputDirectories", "download"))
-    data_selector = dataselector.DataSelector(train, test)
-    data_selector.select_data_by_labels(classes)
-    data_selector.update_labels()
-    data_selector.print_len_by_label()
-    train, test = data_selector.get_dataset()
+    train, test = data_selector.load_cifar10(inifile.get("OutputDirectories", "download"))
+    selector = data_selector.DataSelector(train, test)
+    selector.select_data_by_labels(classes)
+    selector.update_labels()
+    selector.print_len_by_label()
+    train, test = selector.get_dataset()
     # フィーチャ抽出モデルの訓練
     logging = paramlogging.ParamLogging()
     net, record = training.train(train, test, net, args.epoch, args.batch_size, args.lr, lr_scheduling=lr_patterns.lr_v1, logging=logging)
