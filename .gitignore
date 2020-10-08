@@ -1,8 +1,8 @@
 # notebook
 .ipynb_checkpoints/
-notebook/**/logs/
-notebook/**/selected/
-notebook/**/assets/
+/notebook/**/logs/
+/notebook/**/selected/
+/notebook/**/assets/
 
 # output
 result/
