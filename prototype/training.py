@@ -13,7 +13,7 @@ def train(train, test, net, max_epoch, batch_size, initial_lr, lr_scheduling=Non
     if lr_scheduling is not None:
         scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_scheduling)
     print("\n{0:<13}{1:<13}{2:<13}{3:<13}{4:<13}{5:<6}".format("epoch","train/loss","train/acc","test/loss","test/acc","lr"))
-    
+
     for epoch in range(max_epoch):
         # 学習モデルの訓練
         sum_loss = 0.0  # lossの合計
@@ -58,7 +58,7 @@ def train(train, test, net, max_epoch, batch_size, initial_lr, lr_scheduling=Non
                 "train/loss": train_loss,
                 "train/acc": train_acc,
                 "test/loss": test_loss,
-                "test_acc": test_acc,
+                "test/acc": test_acc,
                 "lr": lr
             })
 
