@@ -1,18 +1,17 @@
 # notebook
-notebook/.ipynb_checkpoints/
-notebook/logs/
-notebook/selected/
-test_assets/
+.ipynb_checkpoints/
+/notebook/**/logs/
+/notebook/**/selected/
+/notebook/**/assets/
 
 # output
-**/result/*/*
-**/learned_model/
-**/learned/*/*
-**/data/*
+result/
+learned_model/
+learned/
+data/
 *.db
 
 !.gitkeep
 
-__pycache__
+__pycache__/
 .DS_Store
-
