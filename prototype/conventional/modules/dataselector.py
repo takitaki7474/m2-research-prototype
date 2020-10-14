@@ -6,6 +6,12 @@ def init_dataset_table_indexes():
     dt_indexes["selected"] = []
     return dt_indexes
 
+# dataset_table_indexes(dt_indexes) をjson形式で保存
+def save_dataset_table_indexes(dt_indexes, savepath="./dt_indexes_v1.json"):
+    dt_indexes["selected"] = [int(index) for index in dt_indexes["selected"]]
+    with open(savepath, "w") as f:
+        json.dump(dt_indexes, f, indent=4)
+
 # dataset_table_indexes(dt_indexes) を辞書形式で読み込み
 def load_dataset_table_indexes(path):
     with open(path, "r") as f:
@@ -36,13 +42,6 @@ class DataSelector:
 
     def out_dataset_table_indexes(self):
         return self.dt_indexes
-
-    # dataset_table_indexes(dt_indexes) をjson形式で保存
-    def save_dataset_table_indexes(self, savepath="./dt_indexes_v1.json"):
-        dt_indexes = self.dt_indexes
-        dt_indexes["selected"] = [int(index) for index in dt_indexes["selected"]]
-        with open(savepath, "w") as f:
-            json.dump(dt_indexes, f, indent=4)
 
     def out_selected_dataset(self):
         selected_dataset = []
