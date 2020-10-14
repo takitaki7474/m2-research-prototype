@@ -12,14 +12,14 @@ def download_cifar10(savepath):
     return train, test
 
 # DataFrame形式のdatasetをsqliteに保存
-def save(dataset, savepath, tablename="dataset"):
+def save(dataset, savepath="./train_dt.db", tablename="dataset"):
     conn = sqlite3.connect(savepath)
     c = conn.cursor()
     dataset.to_sql(tablename, conn, if_exists='replace')
     conn.close()
 
 # datasetをsqliteからDataFrame形式で読み込み
-def load(dbpath, tablename="dataset"):
+def load(dbpath="./train_dt.db", tablename="dataset"):
     conn=sqlite3.connect(dbpath)
     c = conn.cursor()
     dataset = pd.read_sql('SELECT * FROM ' + tablename, conn)
