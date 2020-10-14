@@ -25,7 +25,7 @@ def load(dbpath, tablename="dataset"):
     dataset = pd.read_sql('SELECT * FROM ' + tablename, conn)
     return dataset
 
-class DataPreprocessor:
+class DatasetPreprocessor:
 
     def __init__(self, train, test):
         self.train = train
