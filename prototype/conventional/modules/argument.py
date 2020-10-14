@@ -4,6 +4,7 @@ import json
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--model_name', '-mn', type=str, default='v1', help='name of model to train')
+    parser.add_argument('--dt_indexes_ver', '-dt', type=str, default=None, help='version of base dataset table indexes')
     parser.add_argument('--train', '-tr', type=int, default=None, help='number of train data by class label')
     parser.add_argument('--test', '-te', type=int, default=None, help='number of test data by class label')
     parser.add_argument('--batch_size', '-b', type=int, default=128, help='input batch size for training (default: 128)')
@@ -16,7 +17,7 @@ def get_args():
 
 def save_args(args, savepath="./args.json", **kwargs):
     dic = vars(args)
-    for k, v in kwargs:
+    for k, v in kwargs.items():
         dic[k] = v
     with open(savepath, "w") as f:
         json.dump(dic, f, indent=4)
