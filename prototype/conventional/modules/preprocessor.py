@@ -2,36 +2,41 @@ from collections import defaultdict
 import json
 import pandas as pd
 import sqlite3
+from typing import List, Tuple, TypeVar
 import torchvision
 import torchvision.transforms as transforms
 
-def download_cifar10(savepath):
+Torchvision = TypeVar("torchvision.datasets.cifar.CIFAR10")
+Dataframe = TypeVar("pandas.core.frame.DataFrame")
+
+def download_cifar10(savepath: str) -> Tuple[Torchvision, Torchvision]:
     transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
     train = torchvision.datasets.CIFAR10(root=savepath, train=True, download=True, transform=transform)
     test = torchvision.datasets.CIFAR10(root=savepath, train=False, download=True, transform=transform)
     return train, test
 
 # DataFrame形式のdatasetをsqliteに保存
-def save(dataset, savepath="./train_dt.db", tablename="dataset"):
+def save(dataset: Dataframe, savepath="./train_dt.db", tablename="dataset"):
     conn = sqlite3.connect(savepath)
     c = conn.cursor()
     dataset.to_sql(tablename, conn, if_exists='replace')
     conn.close()
 
 # datasetをsqliteからDataFrame形式で読み込み
-def load(dbpath="./train_dt.db", tablename="dataset"):
+def load(dbpath="./train_dt.db", tablename="dataset") -> Dataframe:
     conn=sqlite3.connect(dbpath)
     c = conn.cursor()
     dataset = pd.read_sql('SELECT * FROM ' + tablename, conn)
     return dataset
 
+
 class DatasetPreprocessor:
 
-    def __init__(self, train, test):
+    def __init__(self, train: List[Tuple], test: List[Tuple]):
         self.train = train
         self.test = test
 
-    def out_datasets(self, dataframe=False):
+    def out_datasets(self, dataframe=False) -> Tuple[List[Tuple], List[Tuple]] or Tuple[Dataframe, Dataframe]:
         if dataframe == False:
             return self.train, self.test
         elif dataframe == True:
@@ -59,7 +64,7 @@ class DatasetPreprocessor:
             print("total:  {0}".format(sum))
 
     # labelsに含まれるラベルのデータを選択
-    def select_by_label(self, labels=[]):
+    def select_by_label(self, labels: List[int]):
         self.train = [data for data in self.train if data[1] in labels]
         self.test = [data for data in self.test if data[1] in labels]
 
@@ -81,7 +86,7 @@ class DatasetPreprocessor:
             print("label:  {0} -> {1}".format(old, new))
 
     # dataset(train, test) をDataFrame形式に変換
-    def __convert_dataframe(self, dataset):
+    def __convert_dataframe(self, dataset: List[Tuple]) -> Dataframe:
         dic = defaultdict(list)
         for image, label in dataset:
             dic["image"].append(json.dumps(image.cpu().numpy().tolist()))
