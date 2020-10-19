@@ -16,14 +16,14 @@ def download_cifar10(savepath: str) -> Tuple[Torchvision, Torchvision]:
     return train, test
 
 # DataFrame形式のdatasetをsqliteに保存
-def save(dataset: Dataframe, savepath="./train_dt.db", tablename="dataset"):
+def save(dataset: Dataframe, savepath="./ft.db", tablename="feature_table"):
     conn = sqlite3.connect(savepath)
     c = conn.cursor()
     dataset.to_sql(tablename, conn, if_exists='replace')
     conn.close()
 
 # datasetをsqliteからDataFrame形式で読み込み
-def load(dbpath="./train_dt.db", tablename="dataset") -> Dataframe:
+def load(dbpath="./ft.db", tablename="feature_table") -> Dataframe:
     conn=sqlite3.connect(dbpath)
     c = conn.cursor()
     dataset = pd.read_sql('SELECT * FROM ' + tablename, conn)
