@@ -27,7 +27,7 @@ if __name__=="__main__":
     # 学習結果の保存ディレクトリを生成
     result_dir = os.path.join(RESULT_DIR, args.model_name)
     if not os.path.isdir(result_dir): os.mkdir(result_dir)
-    
+
     # 学習の設定値を記録
     settings_path = os.path.join(result_dir, "settings.json")
     net = MODEL.__class__.__name__

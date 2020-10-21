@@ -12,6 +12,11 @@ Dataframe = TypeVar("pandas.core.frame.DataFrame")
 
 
 
+# dataset_table_indexes(dt_indexes) をランダムに初期化
+def init_dataset_table_indexes() -> Dict[str, List]:
+    dt_indexes = {}
+    dt_indexes["selected"] = []
+    return dt_indexes
 
 # feature_table_indexes(ft_indexes) をランダムに初期化
 def init_feature_table_indexes(feature_table: Dataframe, seed=1) -> Dict[str, List[int]]:
