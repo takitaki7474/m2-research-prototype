@@ -31,7 +31,7 @@ def process(trainloader, testloader, model, epochs: int, lr: float, lr_schedulin
         sum_loss, sum_correct, sum_dataN = 0.0, 0, 0
         for (inputs, labels) in trainloader:
             optimizer.zero_grad()
-            outputs = model(inputs)
+            outputs, _ = model(inputs)
             loss = criterion(outputs, labels)
             sum_loss += loss.item()
             _, predicted = outputs.max(1)
@@ -46,7 +46,7 @@ def process(trainloader, testloader, model, epochs: int, lr: float, lr_schedulin
     def test(testloader) -> Tuple[float, float]:
         sum_loss, sum_correct, sum_dataN = 0.0, 0, 0
         for (inputs, labels) in testloader:
-            outputs = model(inputs)
+            outputs, _ = model(inputs)
             loss = criterion(outputs, labels)
             sum_loss += loss.item()
             _, predicted = outputs.max(1)

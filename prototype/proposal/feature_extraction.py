@@ -7,7 +7,7 @@ from model import pre_models
 from modules import argument, dataselector, training, plot
 from modules.extractor import FeatureExtractor
 from modules import preprocessor as pre
-from utils import alert, tools
+from utils import alert, tools, lr_patterns
 
 TRAIN_CLASSES = [1,2,8]
 MODEL = pre_models.PreLeNet(len(TRAIN_CLASSES))
@@ -16,14 +16,14 @@ inifile = configparser.SafeConfigParser()
 inifile.read("./settings.ini")
 RESULT_DIR = inifile.get("TrainResultDirs", "pre_result")
 LEARNED_DIR = inifile.get("TrainResultDirs", "pre_learned")
-DATA_DIR = inifile.get("TrainResultDirs", "data_dir")
+DATA_DIR = inifile.get("InputDataDir", "data_dir")
 
 if __name__=="__main__":
 
     args = argument.get_args()
     # 既に同名のモデルが存在する場合、上書きするかどうか確認
     check_path = os.path.join(RESULT_DIR, args.model_name)
-    # if not alert.should_overwrite_model(check_path): sys.exit()
+    if not alert.should_overwrite_model(check_path): sys.exit()
 
     # 学習結果の保存ディレクトリを生成
     result_dir = os.path.join(RESULT_DIR, args.model_name)
@@ -71,4 +71,4 @@ if __name__=="__main__":
     # フィーチャ抽出と保存
     extractor = FeatureExtractor(model=model, dataloader=trainloader)
     extractor.make_feature_table()
-    extractor.save_featuer_table(savepath="./feature_tables/ft.db")
+    extractor.save_feature_table(savepath="./feature_tables/ft.db")

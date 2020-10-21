@@ -5,7 +5,7 @@ TRAIN_CLASSES = [1,2,8]
 
 inifile = configparser.SafeConfigParser()
 inifile.read("./settings.ini")
-DATA_DIR = inifile.get("TrainResultDirs", "data_dir")
+DATA_DIR = inifile.get("InputDataDir", "data_dir")
 
 if __name__=="__main__":
 
