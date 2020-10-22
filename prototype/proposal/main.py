@@ -11,18 +11,19 @@ from modules import argument, dataselector, training, plot, eval_loss
 from modules import preprocessor as pre
 from utils import alert, tools, lr_patterns
 
+
+
 # Avoid MacOS spec error
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 args = argument.get_args()
-
-# モデルに関する設定
-TRAIN_CLASSES = [1,2,8]
-MODEL = domain_models.LeNet(len(TRAIN_CLASSES))
-
-# 学習結果の保存ディレクトリ設定
 inifile = configparser.SafeConfigParser()
 inifile.read("./settings.ini")
+
+# 学習モデルの設定
+MODEL = domain_models.LeNet(3)
+
+# 学習結果の保存ディレクトリ設定
 RESULT_DIR = inifile.get("TrainResultDirs", "domain_result")
 LEARNED_DIR = inifile.get("TrainResultDirs", "domain_learned")
 
@@ -32,9 +33,11 @@ DATA_DIR = inifile.get("InputDataDir", "data_dir")
 # 前回学習の訓練誤差収束速度の評価結果
 ERR_SPEED_EVAL = 0
 
-# その他
+# 本バージョンの学習結果の保存ディレクトリ設定
 ISDIR_CHECK_DIR = os.path.join(RESULT_DIR, args.model_name)
 LEARN_RESULT_DIR = os.path.join(RESULT_DIR, args.model_name)
+
+# 学習設定値の保存ディレクトリ設定
 LEARN_SETTINGS_PATH = os.path.join(RESULT_DIR, args.model_name, "settings.json")
 
 # データセットテーブルインデックスの保存ディレクトリ設定
@@ -92,11 +95,11 @@ if __name__=="__main__":
 
 
     # テストデータの選択と生成
+    test_dt = pre.load(dbpath=TEST_DATASET_TABLE_PATH)
     if args.base_result_ver is None:
         test_dt_indexes = dataselector.init_dataset_table_indexes()
     else:
         test_dt_indexes = dataselector.load_table_indexes(path=BASE_TEST_DT_INDEXES_PATH)
-    test_dt = pre.load(dbpath=TEST_DATASET_TABLE_PATH)
     selector = dataselector.DataSelector(test_dt, test_dt_indexes)
     test_dt_indexes = selector.randomly_add(dataN=args.add_test, seed=args.seed)
     test = selector.out_selected_dataset()
@@ -118,6 +121,6 @@ if __name__=="__main__":
     eval_loss.save(err_speed=err_speed, savepath=ERR_SPEED_SAVE_PATH)
     print("train loss error speed:  {0}".format(err_speed))
 
-    # 学習の設定値を記録
+    # 学習の設定値の記録
     net_name = MODEL.__class__.__name__
     argument.save_args(args, LEARN_SETTINGS_PATH, net=net_name, all_train=len(train), all_test=len(test), err_speed=err_speed)
