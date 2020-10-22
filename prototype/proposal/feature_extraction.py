@@ -1,3 +1,6 @@
+# 実行例
+# python feature_extraction.py -mn v5 -tr 5000 -te 500 -e 10
+
 import configparser
 import os
 import sys
@@ -71,4 +74,4 @@ if __name__=="__main__":
     # フィーチャ抽出と保存
     extractor = FeatureExtractor(model=model, dataloader=trainloader)
     extractor.make_feature_table()
-    extractor.save_feature_table(savepath="./feature_tables/ft.db")
+    extractor.save_feature_table(savepath="./feature_table/ft.db")

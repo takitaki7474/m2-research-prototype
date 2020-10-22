@@ -18,6 +18,12 @@ def init_dataset_table_indexes() -> Dict[str, List]:
     dt_indexes["selected"] = []
     return dt_indexes
 
+# dataset_table_indexes(dt_indexes) をjson形式で保存
+def save_dataset_table_indexes(dt_indexes: Dict[str, List[int]], savepath="./dt_indexes_v1.json"):
+    dt_indexes["selected"] = [int(index) for index in dt_indexes["selected"]]
+    with open(savepath, "w") as f:
+        json.dump(dt_indexes, f, indent=4)
+
 # feature_table_indexes(ft_indexes) をランダムに初期化
 def init_feature_table_indexes(feature_table: Dataframe, seed=1) -> Dict[str, List[int]]:
     random.seed(seed)
@@ -40,11 +46,11 @@ def save_feature_table_indexes(ft_indexes: Dict[str, List[int]], savepath="./ft_
     with open(savepath, "w") as f:
         json.dump(ft_indexes, f, indent=4)
 
-# feature_table_indexes(ft_indexes) を辞書形式で読み込み
-def load_feature_table_indexes(path: str) -> Dict[str, List[int]]:
+# table_indexes(ft_indexes, dt_indexes) を辞書形式で読み込み
+def load_table_indexes(path: str) -> Dict[str, List[int]]:
     with open(path, "r") as f:
-        ft_indexes = json.load(f)
-    return ft_indexes
+        table_indexes = json.load(f)
+    return table_indexes
 
 
 
@@ -144,4 +150,5 @@ class FeatureSelector(DataSelector):
                 if FP_query_index not in self.dt_indexes["selected_query"]:
                     break
             self.dt_indexes["query"][label] = FP_query_index
+        print("Updated query to Farthest point.")
         return self.dt_indexes
