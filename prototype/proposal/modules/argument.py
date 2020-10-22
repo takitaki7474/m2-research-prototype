@@ -4,9 +4,10 @@ import json
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--model_name', '-mn', type=str, default='v1', help='name of model to train')
-    parser.add_argument('--dt_indexes_ver', '-dt', type=str, default=None, help='version of base dataset table indexes')
-    parser.add_argument('--train', '-tr', type=int, default=None, help='number of train data by class label')
-    parser.add_argument('--test', '-te', type=int, default=None, help='number of test data by class label')
+    parser.add_argument('--base_result_ver', '-bv', type=str, default=None, help='version of the learning result to base on (default None)')
+    parser.add_argument('--err_speed_std', '-std', type=float, default=25.0, help='standard value of training error speed (default 25.0)')
+    parser.add_argument('--add_train', '-tr', type=int, default=None, help='number of train data by class label')
+    parser.add_argument('--add_test', '-te', type=int, default=None, help='number of test data by class label')
     parser.add_argument('--batch_size', '-b', type=int, default=128, help='input batch size for training (default: 128)')
     parser.add_argument('--test_batch_size', '-teb', type=int, default=128, help='input batch size for testing (default: 128)')
     parser.add_argument('--epochs', '-e', type=int, default=100, help='number of epochs to train (default: 100)')
