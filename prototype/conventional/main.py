@@ -1,76 +1,109 @@
+# 実行例
+# python main.py -mn v4 -bv v3 -tr 100 -te 10 -e 10
+
 import configparser
 import os
 import sys
 import torch
 
 from model import models
-from modules import argument, dataselector, training, plot
+from modules import argument, dataselector, training, plot, eval_loss
 from modules import preprocessor as pre
 from utils import alert, tools
 
-TRAIN_CLASSES = [1,2,8]
-MODEL = models.LeNet(len(TRAIN_CLASSES))
 
+
+args = argument.get_args()
 inifile = configparser.SafeConfigParser()
 inifile.read("./settings.ini")
+
+# 学習モデルの設定
+MODEL = models.LeNet(3)
+
+# 学習結果の保存ディレクトリ設定
 RESULT_DIR = inifile.get("TrainResultDirs", "result_dir")
 LEARNED_DIR = inifile.get("TrainResultDirs", "learned_dir")
+
+# 実験データの保存ディレクトリ設定
 DATA_DIR = inifile.get("InputDataDir", "data_dir")
+
+# 本バージョンの学習結果の保存ディレクトリ設定
+ISDIR_CHECK_DIR = os.path.join(RESULT_DIR, args.model_name)
+LEARN_RESULT_DIR = os.path.join(RESULT_DIR, args.model_name)
+
+# 学習設定値の保存ディレクトリ設定
+LEARN_SETTINGS_PATH = os.path.join(RESULT_DIR, args.model_name, "settings.json")
+
+# データセットテーブルインデックスの保存ディレクトリ設定
+BASE_TRAIN_DT_INDEXES_PATH = os.path.join(RESULT_DIR, str(args.base_result_ver), "train_dt_indexes.json")
+BASE_TEST_DT_INDEXES_PATH = os.path.join(RESULT_DIR, str(args.base_result_ver), "test_dt_indexes.json")
+ADDED_TRAIN_DT_INDEXES_PATH = os.path.join(RESULT_DIR, args.model_name, "train_dt_indexes.json")
+ADDED_TEST_DT_INDEXES_PATH = os.path.join(RESULT_DIR, args.model_name, "test_dt_indexes.json")
+
+# データセットテーブルの読み込みディレクトリ設定
+TRAIN_DATASET_TABLE_PATH = "./dataset_table/train_dt.db"
+TEST_DATASET_TABLE_PATH = "./dataset_table/test_dt.db"
+
+# 学習結果の保存ディレクトリ設定
+TRAIN_LOG_PATH = os.path.join(RESULT_DIR, args.model_name, "log.json")
+LOSS_PLOT_RESULT_PATH = os.path.join(RESULT_DIR, args.model_name, "loss.png")
+ACC_PLOT_RESULT_PATH = os.path.join(RESULT_DIR, args.model_name, "accuracy.png")
+
+# 訓練誤差収束速度の保存ディレクトリ設定
+ERR_SPEED_SAVE_PATH = os.path.join(RESULT_DIR, args.model_name, "err_speed.json")
+
+
 
 if __name__=="__main__":
 
-    args = argument.get_args()
     # 既に同名のモデルが存在する場合、上書きするかどうか確認
-    check_path = os.path.join(RESULT_DIR, args.model_name)
-    # if not alert.should_overwrite_model(check_path): sys.exit()
+    # if not alert.should_overwrite_model(ISDIR_CHECK_DIR): sys.exit()
 
     # 学習結果の保存ディレクトリを生成
-    result_dir = os.path.join(RESULT_DIR, args.model_name)
-    if not os.path.isdir(result_dir): os.mkdir(result_dir)
+    if not os.path.isdir(LEARN_RESULT_DIR): os.mkdir(LEARN_RESULT_DIR)
 
-    # 学習の設定値を記録
-    settings_path = os.path.join(result_dir, "settings.json")
-    net = MODEL.__class__.__name__
-    argument.save_args(args, settings_path, net=net)
 
-    # dataset_table_indexesの読み込み
-    if args.dt_indexes_ver is None:
+    # 訓練データの選択と生成
+    train_dt = pre.load(dbpath=TRAIN_DATASET_TABLE_PATH)
+    if args.base_result_ver is None:
         train_dt_indexes = dataselector.init_dataset_table_indexes()
+    else:
+        train_dt_indexes = dataselector.load_dataset_table_indexes(path=BASE_TRAIN_DT_INDEXES_PATH)
+    selector = dataselector.DataSelector(train_dt, train_dt_indexes)
+    train_dt_indexes = selector.randomly_add(dataN=args.add_train, seed=args.seed)
+    train = selector.out_selected_dataset()
+    dataselector.save_dataset_table_indexes(train_dt_indexes, savepath=ADDED_TRAIN_DT_INDEXES_PATH)
+    print("Number of train data: {0}".format(len(train)))
+    trainloader = torch.utils.data.DataLoader(train, batch_size=args.batch_size, shuffle=True, num_workers=2)
+
+
+    # テストデータの選択と生成
+    test_dt = pre.load(dbpath=TEST_DATASET_TABLE_PATH)
+    if args.base_result_ver is None:
         test_dt_indexes = dataselector.init_dataset_table_indexes()
     else:
-        loadpath = os.path.join(RESULT_DIR, args.dt_indexes_ver, "train_dt_indexes.json")
-        train_dt_indexes = dataselector.load_dataset_table_indexes(path=loadpath)
-        loadpath = os.path.join(RESULT_DIR, args.dt_indexes_ver, "test_dt_indexes.json")
-        test_dt_indexes = dataselector.load_dataset_table_indexes(path=loadpath)
-
-    # 訓練データの選択
-    train_dt = pre.load(dbpath="./dataset_table/train_dt.db")
-    selector = dataselector.DataSelector(train_dt, train_dt_indexes)
-    train_dt_indexes = selector.randomly_add(dataN=args.train, seed=args.seed)
-    train = selector.out_selected_dataset()
-    print("Number of train data: {0}".format(len(train)))
-    savepath = os.path.join(RESULT_DIR, args.model_name, "train_dt_indexes.json")
-    dataselector.save_dataset_table_indexes(train_dt_indexes, savepath=savepath)
-
-    # テストデータの選択
-    test_dt = pre.load(dbpath="./dataset_table/test_dt.db")
+        test_dt_indexes = dataselector.load_dataset_table_indexes(path=BASE_TEST_DT_INDEXES_PATH)
     selector = dataselector.DataSelector(test_dt, test_dt_indexes)
-    test_dt_indexes = selector.randomly_add(dataN=args.test, seed=args.seed)
+    test_dt_indexes = selector.randomly_add(dataN=args.add_test, seed=args.seed)
     test = selector.out_selected_dataset()
+    dataselector.save_dataset_table_indexes(test_dt_indexes, savepath=ADDED_TEST_DT_INDEXES_PATH)
     print("Number of test data: {0}".format(len(test)))
-    savepath = os.path.join(RESULT_DIR, args.model_name, "test_dt_indexes.json")
-    dataselector.save_dataset_table_indexes(test_dt_indexes, savepath=savepath)
-
-    trainloader = torch.utils.data.DataLoader(train, batch_size=args.batch_size, shuffle=True, num_workers=2)
     testloader = torch.utils.data.DataLoader(test, batch_size=args.test_batch_size, shuffle=False, num_workers=2)
 
+
     # 学習と評価
-    log_path = os.path.join(RESULT_DIR, args.model_name, "log.json")
-    model = training.process(trainloader, testloader, MODEL, args.epochs, args.lr, log_savepath=log_path)
+    model = training.process(trainloader, testloader, MODEL, args.epochs, args.lr, log_savepath=TRAIN_LOG_PATH)
 
     # 学習結果の可視化
-    train_losses, test_losses, train_accs, test_accs = tools.load_train_log(path=log_path)
-    savepath = os.path.join(RESULT_DIR, args.model_name, "loss.png")
-    plot.plot_loss(train_losses, test_losses, savepath=savepath)
-    savepath = os.path.join(RESULT_DIR, args.model_name, "accuracy.png")
-    plot.plot_acc(train_accs, test_accs, savepath=savepath)
+    train_losses, test_losses, train_accs, test_accs = tools.load_train_log(path=TRAIN_LOG_PATH)
+    plot.plot_loss(train_losses, test_losses, savepath=LOSS_PLOT_RESULT_PATH)
+    plot.plot_acc(train_accs, test_accs, savepath=ACC_PLOT_RESULT_PATH)
+
+    # 訓練誤差収束速度の評価
+    err_speed = eval_loss.eval_err_speed(train_losses)
+    eval_loss.save(err_speed=err_speed, savepath=ERR_SPEED_SAVE_PATH)
+    print("train loss error speed:  {0}".format(err_speed))
+
+    # 学習の設定値を記録
+    net_name = MODEL.__class__.__name__
+    argument.save_args(args, LEARN_SETTINGS_PATH, net=net_name, all_train=len(train), all_test=len(test), err_speed=err_speed)
