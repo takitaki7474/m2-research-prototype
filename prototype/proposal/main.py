@@ -89,7 +89,7 @@ if __name__=="__main__":
     selector.make_faiss_indexes()
     if ERR_SPEED_EVAL == 1: # 訓練誤差収束速度が基準を満たした場合
         _ = selector.update_FP_queries() # クエリを最遠傍点(FP)に更新
-    train_ft_indexes = selector.add_NN(dataN=args.add_train)
+    train_ft_indexes, _ = selector.add_NN(dataN=args.add_train)
     train = selector.out_selected_dataset()
     dataselector.save_feature_table_indexes(train_ft_indexes, savepath=ADDED_TRAIN_FT_INDEXES_PATH)
     print("Number of train data: {0}".format(len(train)))
@@ -103,7 +103,7 @@ if __name__=="__main__":
     else:
         test_dt_indexes = dataselector.load_table_indexes(path=BASE_TEST_DT_INDEXES_PATH)
     selector = dataselector.DataSelector(test_dt, test_dt_indexes)
-    test_dt_indexes = selector.randomly_add(dataN=args.add_test, seed=args.seed)
+    test_dt_indexes, _ = selector.randomly_add(dataN=args.add_test, seed=args.seed)
     test = selector.out_selected_dataset()
     dataselector.save_dataset_table_indexes(test_dt_indexes, savepath=ADDED_TEST_DT_INDEXES_PATH)
     print("Number of test data: {0}".format(len(test)))
