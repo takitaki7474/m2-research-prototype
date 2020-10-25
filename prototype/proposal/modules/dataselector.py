@@ -69,12 +69,14 @@ class DataSelector:
         return dt
 
     def randomly_add(self, dataN: int, seed=None) -> Dict[str, List[int]]:
+        selected_dt_indexes = []
         dt_labelby = self.dropped_dt.groupby("label")
         for label in self.labels:
             df = dt_labelby.get_group(label)
             df = df.sample(n=dataN, random_state=seed)
+            selected_dt_indexes += list(df["index"].values)
             self.dt_indexes["selected"] += list(df["index"].values)
-        return self.dt_indexes
+        return self.dt_indexes, selected_dt_indexes
 
     def out_dataset_table_indexes(self) -> Dict[str, List[int]]:
         return self.dt_indexes
@@ -89,6 +91,17 @@ class DataSelector:
             label = irow["label"].iloc[0]
             selected_dataset.append((image, label))
         return selected_dataset
+
+    def out_dataset(self, dt_indexes:List[int]) -> List[Tuple]:
+        dataset = []
+        for index in dt_indexes:
+            irow = self.dt[self.dt["index"]==index]
+            image = json.loads(irow["image"].iloc[0])
+            image = np.array(image)
+            image = torch.from_numpy(image.astype(np.float32)).clone()
+            label = irow["label"].iloc[0]
+            dataset.append((image, label))
+        return dataset
 
 
 
@@ -117,6 +130,7 @@ class FeatureSelector(DataSelector):
         if len(self.faiss_indexes) is 0:
             print("\nPlease run the process to make faiss indexes in advance.")
             sys.exit()
+        selected_dt_indexes = []
         dt_labelby = self.dropped_dt.groupby("label")
         for label in self.labels:
             index = self.faiss_indexes[label]
@@ -129,8 +143,9 @@ class FeatureSelector(DataSelector):
             for i in I[0][:dataN + 1]:
                 train_index = dt_labelby.get_group(label).iloc[i]["index"]
                 if train_index == self.dt_indexes["query"][label]: continue # クエリはselectedに含めない
+                selected_dt_indexes.append(train_index)
                 self.dt_indexes["selected"].append(train_index)
-        return self.dt_indexes
+        return self.dt_indexes, selected_dt_indexes
 
     # クエリを最遠傍点(FP)に更新
     def update_FP_queries(self) -> Dict[str, List[int]]:
