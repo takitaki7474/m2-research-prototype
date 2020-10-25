@@ -100,10 +100,12 @@ if __name__=="__main__":
     plot.plot_acc(train_accs, test_accs, savepath=ACC_PLOT_RESULT_PATH)
 
     # 訓練誤差収束速度の評価
-    err_speed = eval_loss.eval_err_speed(train_losses)
-    eval_loss.save(err_speed=err_speed, savepath=ERR_SPEED_SAVE_PATH)
-    print("train loss error speed:  {0}".format(err_speed))
+    train_err_speed = eval_loss.eval_err_speed(train_losses)
+    test_err_speed = eval_loss.eval_err_speed(test_losses)
+    eval_loss.save(savepath=ERR_SPEED_SAVE_PATH, train_err_speed=train_err_speed, test_err_speed=test_err_speed)
+    print("train loss error speed:  {0}".format(train_err_speed))
+    print("test loss error speed:  {0}".format(test_err_speed))
 
     # 学習の設定値を記録
     net_name = MODEL.__class__.__name__
-    argument.save_args(args, LEARN_SETTINGS_PATH, net=net_name, all_train=len(train), all_test=len(test), err_speed=err_speed)
+    argument.save_args(args, LEARN_SETTINGS_PATH, net=net_name, all_train=len(train), all_test=len(test), train_err_speed=train_err_speed, test_err_speed=test_err_speed)

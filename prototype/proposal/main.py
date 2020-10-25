@@ -31,7 +31,7 @@ LEARNED_DIR = inifile.get("TrainResultDirs", "domain_learned")
 DATA_DIR = inifile.get("InputDataDir", "data_dir")
 
 # 前回学習の訓練誤差収束速度の評価結果
-ERR_SPEED_EVAL = 0
+ERR_SPEED_EVAL = args.err_speed_eval
 
 # 本バージョンの学習結果の保存ディレクトリ設定
 ISDIR_CHECK_DIR = os.path.join(RESULT_DIR, args.model_name)
@@ -69,12 +69,14 @@ if __name__=="__main__":
     # 学習結果の保存ディレクトリを生成
     if not os.path.isdir(LEARN_RESULT_DIR): os.mkdir(LEARN_RESULT_DIR)
 
+    """
     # 前回学習の訓練誤差収束速度の評価
     if args.base_result_ver is not None:
         err_speed = eval_loss.load(path=ERR_SPEED_LOAD_PATH)
         if err_speed >= args.err_speed_std: # 訓練誤差収束速度が基準値を満たした場合
             ERR_SPEED_EVAL = 1
-    ERR_SPEED_EVAL = 0 # 実験用
+    ERR_SPEED_EVAL = 1 # 実験用
+    """
 
 
     # 訓練データの選択と生成
@@ -117,10 +119,12 @@ if __name__=="__main__":
     plot.plot_acc(train_accs, test_accs, savepath=ACC_PLOT_RESULT_PATH)
 
     # 訓練誤差収束速度の評価
-    err_speed = eval_loss.eval_err_speed(train_losses)
-    eval_loss.save(err_speed=err_speed, savepath=ERR_SPEED_SAVE_PATH)
-    print("train loss error speed:  {0}".format(err_speed))
+    train_err_speed = eval_loss.eval_err_speed(train_losses)
+    test_err_speed = eval_loss.eval_err_speed(test_losses)
+    eval_loss.save(savepath=ERR_SPEED_SAVE_PATH, train_err_speed=train_err_speed, test_err_speed=test_err_speed)
+    print("train loss error speed:  {0}".format(train_err_speed))
+    print("test loss error speed:  {0}".format(test_err_speed))
 
     # 学習の設定値の記録
     net_name = MODEL.__class__.__name__
-    argument.save_args(args, LEARN_SETTINGS_PATH, net=net_name, all_train=len(train), all_test=len(test), err_speed=err_speed)
+    argument.save_args(args, LEARN_SETTINGS_PATH, net=net_name, all_train=len(train), all_test=len(test), train_err_speed=train_err_speed, test_err_speed=test_err_speed)
