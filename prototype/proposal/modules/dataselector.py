@@ -68,15 +68,15 @@ class DataSelector:
         dt = dt.reset_index(drop=True)
         return dt
 
-    def randomly_add(self, dataN: int, seed=None) -> Dict[str, List[int]]:
-        selected_dt_indexes = []
+    def randomly_add(self, dataN: int, seed=None) -> Tuple[Dict[str, List[int]], List[int]]:
+        selected_indexes = []
         dt_labelby = self.dropped_dt.groupby("label")
         for label in self.labels:
             df = dt_labelby.get_group(label)
             df = df.sample(n=dataN, random_state=seed)
-            selected_dt_indexes += list(df["index"].values)
+            selected_indexes += list(df["index"].values)
             self.dt_indexes["selected"] += list(df["index"].values)
-        return self.dt_indexes, selected_dt_indexes
+        return self.dt_indexes, selected_indexes
 
     def out_dataset_table_indexes(self) -> Dict[str, List[int]]:
         return self.dt_indexes
@@ -126,11 +126,11 @@ class FeatureSelector(DataSelector):
             self.faiss_indexes[label] = index
 
     # ラベルごとにクエリと最近傍(NN)のフィーチャをdataN分選択し、選択したフィーチャのdt_indexesをdt_indexes["selected"]に追加
-    def add_NN(self, dataN: int) -> Dict[str, List[int]]:
+    def add_NN(self, dataN: int) -> Tuple[Dict[str, List[int]], List[int]]:
         if len(self.faiss_indexes) is 0:
             print("\nPlease run the process to make faiss indexes in advance.")
             sys.exit()
-        selected_dt_indexes = []
+        selected_indexes = []
         dt_labelby = self.dropped_dt.groupby("label")
         for label in self.labels:
             index = self.faiss_indexes[label]
@@ -143,9 +143,9 @@ class FeatureSelector(DataSelector):
             for i in I[0][:dataN + 1]:
                 train_index = dt_labelby.get_group(label).iloc[i]["index"]
                 if train_index == self.dt_indexes["query"][label]: continue # クエリはselectedに含めない
-                selected_dt_indexes.append(train_index)
+                selected_indexes.append(train_index)
                 self.dt_indexes["selected"].append(train_index)
-        return self.dt_indexes, selected_dt_indexes
+        return self.dt_indexes, selected_indexes
 
     # クエリを最遠傍点(FP)に更新
     def update_FP_queries(self) -> Dict[str, List[int]]:
