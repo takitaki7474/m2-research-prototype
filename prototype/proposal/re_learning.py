@@ -127,4 +127,4 @@ if __name__=="__main__":
 
     # 学習の設定値の記録
     net_name = MODEL.__class__.__name__
-    argument.save_args(args, LEARN_SETTINGS_PATH, net=net_name, all_train=len(train), all_test=len(test), train_err_speed=train_err_speed, test_err_speed=test_err_speed)
+    argument.save_args(args, LEARN_SETTINGS_PATH, net=net_name, total_train=len(train), total_test=len(test), train_err_speed=train_err_speed, test_err_speed=test_err_speed)
