@@ -1,5 +1,5 @@
 # 実行例
-# python re_learning.py -mn v4 -bv v3 -std 0.2 -tr 100 -te 10 -e 10
+# python additional_learning.py -mn v4 -bv v3 -std 0.2 -tr 100 -te 10 -e 10
 
 import configparser
 import os
@@ -20,12 +20,14 @@ args = argument.get_args()
 inifile = configparser.SafeConfigParser()
 inifile.read("./settings.ini")
 
-# 学習モデルの設定
-MODEL = domain_models.LeNet(3)
-
 # 学習結果の保存ディレクトリ設定
 RESULT_DIR = inifile.get("TrainResultDirs", "domain_result")
 LEARNED_DIR = inifile.get("TrainResultDirs", "domain_learned")
+
+# 学習モデルの設定
+MODEL = domain_models.LeNet(3)
+if args.base_result_ver is not None:
+    MODEL.load_state_dict(torch.load(os.path.join(LEARNED_DIR, args.base_result_ver + ".pth")))
 
 # 実験データの保存ディレクトリ設定
 DATA_DIR = inifile.get("InputDataDir", "data_dir")
@@ -52,6 +54,7 @@ TEST_DATASET_TABLE_PATH = "./dataset_table/test_dt.db"
 
 # 学習結果の保存ディレクトリ設定
 TRAIN_LOG_PATH = os.path.join(RESULT_DIR, args.model_name, "log.json")
+MODEL_SAVE_PATH = os.path.join(LEARNED_DIR, args.model_name + ".pth")
 LOSS_PLOT_RESULT_PATH = os.path.join(RESULT_DIR, args.model_name, "loss.png")
 ACC_PLOT_RESULT_PATH = os.path.join(RESULT_DIR, args.model_name, "accuracy.png")
 
@@ -69,15 +72,6 @@ if __name__=="__main__":
     # 学習結果の保存ディレクトリを生成
     if not os.path.isdir(LEARN_RESULT_DIR): os.mkdir(LEARN_RESULT_DIR)
 
-    """
-    # 前回学習の訓練誤差収束速度の評価
-    if args.base_result_ver is not None:
-        err_speed = eval_loss.load(path=ERR_SPEED_LOAD_PATH)
-        if err_speed >= args.err_speed_std: # 訓練誤差収束速度が基準値を満たした場合
-            ERR_SPEED_EVAL = 1
-    ERR_SPEED_EVAL = 1 # 実験用
-    """
-
 
     # 訓練データの選択と生成
     train_ft = pre.load(dbpath=FEATURE_TABLE_PATH)
@@ -89,8 +83,8 @@ if __name__=="__main__":
     selector.make_faiss_indexes()
     if ERR_SPEED_EVAL == 1: # 訓練誤差収束速度が基準を満たした場合
         _ = selector.update_FP_queries() # クエリを最遠傍点(FP)に更新
-    train_ft_indexes, _ = selector.add_NN(dataN=args.add_train)
-    train = selector.out_selected_dataset()
+    train_ft_indexes, selected_indexes = selector.add_NN(dataN=args.add_train)
+    train = selector.out_dataset(dt_indexes=selected_indexes)
     dataselector.save_feature_table_indexes(train_ft_indexes, savepath=ADDED_TRAIN_FT_INDEXES_PATH)
     print("Number of train data: {0}".format(len(train)))
     trainloader = torch.utils.data.DataLoader(train, batch_size=args.batch_size, shuffle=True, num_workers=2)
@@ -110,8 +104,9 @@ if __name__=="__main__":
     testloader = torch.utils.data.DataLoader(test, batch_size=args.test_batch_size, shuffle=False, num_workers=2)
 
 
-    # 学習と評価
+    # 学習と評価と保存
     model = training.process(trainloader, testloader, MODEL, args.epochs, args.lr, log_savepath=TRAIN_LOG_PATH)
+    torch.save(model.state_dict(), MODEL_SAVE_PATH)
 
     # 学習結果の可視化
     train_losses, test_losses, train_accs, test_accs = tools.load_train_log(path=TRAIN_LOG_PATH)
@@ -127,4 +122,4 @@ if __name__=="__main__":
 
     # 学習の設定値の記録
     net_name = MODEL.__class__.__name__
-    argument.save_args(args, LEARN_SETTINGS_PATH, net=net_name, all_train=len(train), all_test=len(test), train_err_speed=train_err_speed, test_err_speed=test_err_speed)
+    argument.save_args(args, LEARN_SETTINGS_PATH, net=net_name, new_train=len(train), all_train=len(train_ft_indexes["selected"]), all_test=len(test), train_err_speed=train_err_speed, test_err_speed=test_err_speed)
