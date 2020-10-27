@@ -36,13 +36,15 @@ class DataSelector:
         dt = dt.reset_index(drop=True)
         return dt
 
-    def randomly_add(self, dataN: int, seed=None) -> Dict[str, List[int]]:
+    def randomly_add(self, dataN: int, seed=None) -> Tuple[Dict[str, List[int]], List[int]]:
+        selected_indexes = []
         dt_labelby = self.dropped_dt.groupby("label")
         for label in self.labels:
             df = dt_labelby.get_group(label)
             df = df.sample(n=dataN, random_state=seed)
+            selected_indexes += list(df["index"].values)
             self.dt_indexes["selected"] += list(df["index"].values)
-        return self.dt_indexes
+        return self.dt_indexes, selected_indexes
 
     def out_dataset_table_indexes(self) -> Dict[str, List[int]]:
         return self.dt_indexes
@@ -57,3 +59,14 @@ class DataSelector:
             label = irow["label"].iloc[0]
             selected_dataset.append((image, label))
         return selected_dataset
+
+    def out_dataset(self, dt_indexes:List[int]) -> List[Tuple]:
+        dataset = []
+        for index in dt_indexes:
+            irow = self.dt[self.dt["index"]==index]
+            image = json.loads(irow["image"].iloc[0])
+            image = np.array(image)
+            image = torch.from_numpy(image.astype(np.float32)).clone()
+            label = irow["label"].iloc[0]
+            dataset.append((image, label))
+        return dataset
