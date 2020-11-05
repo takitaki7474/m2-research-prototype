@@ -18,10 +18,15 @@ inifile = configparser.SafeConfigParser()
 inifile.read("./settings.ini")
 
 # 学習モデルの設定
-MODEL = models.LeNet(3)
+MODEL = models.LeNet(5)
+
+# データセットテーブルの読み込みディレクトリ設定
+TRAIN_DATASET_TABLE_PATH = "./dataset_table/train_dt5.db"
+TEST_DATASET_TABLE_PATH = "./dataset_table/test_dt5.db"
 
 # 学習率の更新scheduleの設定
 LR_SCHEDULING = lr_patterns.lr_v1
+#LR_SCHEDULING = None
 
 # 学習結果の保存ディレクトリ設定
 RESULT_DIR = inifile.get("TrainResultDirs", "result_dir")
@@ -42,10 +47,6 @@ BASE_TRAIN_DT_INDEXES_PATH = os.path.join(RESULT_DIR, str(args.base_result_ver),
 BASE_TEST_DT_INDEXES_PATH = os.path.join(RESULT_DIR, str(args.base_result_ver), "test_dt_indexes.json")
 ADDED_TRAIN_DT_INDEXES_PATH = os.path.join(RESULT_DIR, args.model_name, "train_dt_indexes.json")
 ADDED_TEST_DT_INDEXES_PATH = os.path.join(RESULT_DIR, args.model_name, "test_dt_indexes.json")
-
-# データセットテーブルの読み込みディレクトリ設定
-TRAIN_DATASET_TABLE_PATH = "./dataset_table/train_dt.db"
-TEST_DATASET_TABLE_PATH = "./dataset_table/test_dt.db"
 
 # 学習結果の保存ディレクトリ設定
 TRAIN_LOG_PATH = os.path.join(RESULT_DIR, args.model_name, "log.json")
