@@ -1,5 +1,5 @@
 # 実行例
-# python main.py -mn v4 -bv v3 -tr 100 -te 10 -e 10
+# python re_learning.py -mn v4 -bv v3 -tr 100 -te 10 -e 10
 
 import configparser
 import os
@@ -18,10 +18,15 @@ inifile = configparser.SafeConfigParser()
 inifile.read("./settings.ini")
 
 # 学習モデルの設定
-MODEL = models.LeNet(3)
+MODEL = models.LeNet(5)
+
+# データセットテーブルの読み込みディレクトリ設定
+TRAIN_DATASET_TABLE_PATH = "./dataset_table/train_dt5.db"
+TEST_DATASET_TABLE_PATH = "./dataset_table/test_dt5.db"
 
 # 学習率の更新scheduleの設定
 LR_SCHEDULING = lr_patterns.lr_v1
+#LR_SCHEDULING = None
 
 # 学習結果の保存ディレクトリ設定
 RESULT_DIR = inifile.get("TrainResultDirs", "result_dir")
@@ -42,10 +47,6 @@ BASE_TRAIN_DT_INDEXES_PATH = os.path.join(RESULT_DIR, str(args.base_result_ver),
 BASE_TEST_DT_INDEXES_PATH = os.path.join(RESULT_DIR, str(args.base_result_ver), "test_dt_indexes.json")
 ADDED_TRAIN_DT_INDEXES_PATH = os.path.join(RESULT_DIR, args.model_name, "train_dt_indexes.json")
 ADDED_TEST_DT_INDEXES_PATH = os.path.join(RESULT_DIR, args.model_name, "test_dt_indexes.json")
-
-# データセットテーブルの読み込みディレクトリ設定
-TRAIN_DATASET_TABLE_PATH = "./dataset_table/train_dt.db"
-TEST_DATASET_TABLE_PATH = "./dataset_table/test_dt.db"
 
 # 学習結果の保存ディレクトリ設定
 TRAIN_LOG_PATH = os.path.join(RESULT_DIR, args.model_name, "log.json")
@@ -111,4 +112,4 @@ if __name__=="__main__":
 
     # 学習の設定値を記録
     net_name = MODEL.__class__.__name__
-    argument.save_args(args, LEARN_SETTINGS_PATH, net=net_name, all_train=len(train), all_test=len(test), train_err_speed=train_err_speed, test_err_speed=test_err_speed)
+    argument.save_args(args, LEARN_SETTINGS_PATH, net=net_name, total_train=len(train), total_test=len(test), train_err_speed=train_err_speed, test_err_speed=test_err_speed)

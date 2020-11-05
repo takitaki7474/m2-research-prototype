@@ -6,14 +6,14 @@ from modules import preprocessor as pre
 inifile = configparser.SafeConfigParser()
 inifile.read("./settings.ini")
 
-TRAIN_CLASSES = [1,2,8]
+TRAIN_CLASSES = [0,1,2,3,4]
 
 # 実験データの保存ディレクトリ設定
 DATA_DIR = inifile.get("InputDataDir", "data_dir")
 
 # データセットテーブルの保存ディレクトリ設定
-TRAIN_DATASET_TABLE_PATH = "./dataset_table/train_dt.db"
-TEST_DATASET_TABLE_PATH = "./dataset_table/test_dt.db"
+TRAIN_DATASET_TABLE_PATH = "./dataset_table/train_dt5.db"
+TEST_DATASET_TABLE_PATH = "./dataset_table/test_dt5.db"
 
 
 

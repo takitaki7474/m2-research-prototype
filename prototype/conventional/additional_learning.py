@@ -1,5 +1,5 @@
 # 実行例
-# python main.py -mn v4 -bv v3 -tr 100 -te 10 -e 10
+# python additional_learning.py -mn v4 -bv v3 -tr 100 -te 10 -e 10
 
 import configparser
 import os
@@ -115,4 +115,4 @@ if __name__=="__main__":
 
     # 学習の設定値を記録
     net_name = MODEL.__class__.__name__
-    argument.save_args(args, LEARN_SETTINGS_PATH, net=net_name, new_train=len(train), all_train=len(train_dt_indexes["selected"]), all_test=len(test), train_err_speed=train_err_speed, test_err_speed=test_err_speed)
+    argument.save_args(args, LEARN_SETTINGS_PATH, net=net_name, new_train=len(train), total_train=len(train_dt_indexes["selected"]), total_test=len(test), train_err_speed=train_err_speed, test_err_speed=test_err_speed)
