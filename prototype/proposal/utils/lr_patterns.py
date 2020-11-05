@@ -1,10 +1,11 @@
 
+
 def lr_v1(epoch):
-    if epoch < 20:
+    if epoch < 50:
         return 1
-    elif epoch < 40:
+    elif epoch < 70:
         return 0.1**1
-    elif epoch < 60:
+    elif epoch < 90:
         return 0.1**2
     else:
         return 0.1**3
