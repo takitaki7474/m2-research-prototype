@@ -21,7 +21,15 @@ inifile = configparser.SafeConfigParser()
 inifile.read("./settings.ini")
 
 # 学習モデルの設定
-MODEL = domain_models.LeNet(3)
+MODEL = domain_models.LeNet(5)
+
+# データセットテーブルの読み込みディレクトリ設定
+FEATURE_TABLE_PATH = "./feature_table/ft5.db"
+TEST_DATASET_TABLE_PATH = "./dataset_table/test_dt5.db"
+
+# 学習率の更新scheduleの設定
+LR_SCHEDULING = lr_patterns.lr_v1
+#LR_SCHEDULING = None
 
 # 学習結果の保存ディレクトリ設定
 RESULT_DIR = inifile.get("TrainResultDirs", "domain_result")
@@ -45,10 +53,6 @@ BASE_TRAIN_FT_INDEXES_PATH = os.path.join(RESULT_DIR, str(args.base_result_ver),
 BASE_TEST_DT_INDEXES_PATH = os.path.join(RESULT_DIR, str(args.base_result_ver), "test_dt_indexes.json")
 ADDED_TRAIN_FT_INDEXES_PATH = os.path.join(RESULT_DIR, args.model_name, "train_ft_indexes.json")
 ADDED_TEST_DT_INDEXES_PATH = os.path.join(RESULT_DIR, args.model_name, "test_dt_indexes.json")
-
-# データセットテーブルの読み込みディレクトリ設定
-FEATURE_TABLE_PATH = "./feature_table/ft.db"
-TEST_DATASET_TABLE_PATH = "./dataset_table/test_dt.db"
 
 # 学習結果の保存ディレクトリ設定
 TRAIN_LOG_PATH = os.path.join(RESULT_DIR, args.model_name, "log.json")
@@ -111,7 +115,7 @@ if __name__=="__main__":
 
 
     # 学習と評価
-    model = training.process(trainloader, testloader, MODEL, args.epochs, args.lr, log_savepath=TRAIN_LOG_PATH)
+    model = training.process(trainloader, testloader, MODEL, args.epochs, args.lr, lr_scheduling=LR_SCHEDULING, log_savepath=TRAIN_LOG_PATH)
 
     # 学習結果の可視化
     train_losses, test_losses, train_accs, test_accs = tools.load_train_log(path=TRAIN_LOG_PATH)

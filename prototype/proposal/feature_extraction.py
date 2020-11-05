@@ -19,7 +19,18 @@ inifile = configparser.SafeConfigParser()
 inifile.read("./settings.ini")
 
 # 学習モデルの設定
-MODEL = pre_models.PreLeNet(3)
+MODEL = pre_models.PreLeNet(5)
+
+# データセットテーブルの読み込みディレクトリ設定
+TRAIN_DATASET_TABLE_PATH = "./dataset_table/train_dt5.db"
+TEST_DATASET_TABLE_PATH = "./dataset_table/test_dt5.db"
+
+# フィーチャ抽出結果の保存ディレクトリ設定
+FEATURE_TABLE_PATH = "./feature_table/ft5.db"
+
+# 学習率の更新scheduleの設定
+LR_SCHEDULING = lr_patterns.lr_v1
+#LR_SCHEDULING = None
 
 # 学習結果の保存ディレクトリ設定
 RESULT_DIR = inifile.get("TrainResultDirs", "pre_result")
@@ -35,17 +46,11 @@ LEARN_RESULT_DIR = os.path.join(RESULT_DIR, args.model_name)
 # 学習設定値の保存ディレクトリ設定
 LEARN_SETTINGS_PATH = os.path.join(RESULT_DIR, args.model_name, "settings.json")
 
-TRAIN_DATASET_TABLE_PATH = "./dataset_table/train_dt.db"
-TEST_DATASET_TABLE_PATH = "./dataset_table/test_dt.db"
-
 # 学習結果の保存ディレクトリ設定
 TRAIN_LOG_PATH = os.path.join(RESULT_DIR, args.model_name, "log.json")
 MODEL_SAVE_PATH = os.path.join(LEARNED_DIR, args.model_name + ".pth")
 LOSS_PLOT_RESULT_PATH = os.path.join(RESULT_DIR, args.model_name, "loss.png")
 ACC_PLOT_RESULT_PATH = os.path.join(RESULT_DIR, args.model_name, "accuracy.png")
-
-# フィーチャ抽出結果の保存ディレクトリ設定
-FEATURE_TABLE_PATH = "./feature_table/ft.db"
 
 
 
@@ -80,7 +85,7 @@ if __name__=="__main__":
 
 
     # 学習と評価
-    model = training.process(trainloader, testloader, MODEL, args.epochs, args.lr, log_savepath=TRAIN_LOG_PATH)
+    model = training.process(trainloader, testloader, MODEL, args.epochs, args.lr, lr_scheduling=LR_SCHEDULING, log_savepath=TRAIN_LOG_PATH)
     torch.save(model.state_dict(), MODEL_SAVE_PATH)
 
     # 学習結果の可視化
