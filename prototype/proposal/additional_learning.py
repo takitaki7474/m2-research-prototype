@@ -25,7 +25,7 @@ RESULT_DIR = inifile.get("TrainResultDirs", "domain_result")
 LEARNED_DIR = inifile.get("TrainResultDirs", "domain_learned")
 
 # 学習モデルの設定
-MODEL = domain_models.LeNet(3)
+MODEL = domain_models.LeNet3(3)
 if args.base_result_ver is not None:
     MODEL.load_state_dict(torch.load(os.path.join(LEARNED_DIR, args.base_result_ver + ".pth")))
 
