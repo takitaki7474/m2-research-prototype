@@ -1,5 +1,5 @@
 # 実行例
-# python re_learning.py -mn v4 -bv v3 -std 0.2 -tr 100 -te 10 -e 10
+# python re_learning.py -mn v4 -bv v3 -tr 100 -te 10 -e 10 -eval 1
 
 import configparser
 import os
