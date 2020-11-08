@@ -5,7 +5,6 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--model_name', '-mn', type=str, default='v1', help='name of model to train')
     parser.add_argument('--base_result_ver', '-bv', type=str, default=None, help='version of the learning result to base on (default None)')
-    #parser.add_argument('--err_speed_std', '-std', type=float, default=25.0, help='standard value of training error speed (default 25.0)')
     parser.add_argument('--err_speed_eval', '-eval', type=int, default=0, help='evaluation value of training error speed (default 0)')
     parser.add_argument('--add_train', '-tr', type=int, default=None, help='number of train data by class label')
     parser.add_argument('--add_test', '-te', type=int, default=None, help='number of test data by class label')

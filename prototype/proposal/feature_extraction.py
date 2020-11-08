@@ -1,5 +1,5 @@
 # 実行例
-# python feature_extraction.py -mn v5 -tr 5000 -te 500 -e 10
+# python feature_extraction.py -mn v5 -tr 5000 -te 500 -e 100 -lr 0.01
 
 import configparser
 import os
@@ -19,14 +19,14 @@ inifile = configparser.SafeConfigParser()
 inifile.read("./settings.ini")
 
 # 学習モデルの設定
-MODEL = pre_models.PreLeNet(5)
+MODEL = pre_models.PreLeNet(4)
 
 # データセットテーブルの読み込みディレクトリ設定
-TRAIN_DATASET_TABLE_PATH = "./dataset_table/train_dt5.db"
-TEST_DATASET_TABLE_PATH = "./dataset_table/test_dt5.db"
+TRAIN_DATASET_TABLE_PATH = "./dataset_table/train_dt4.db"
+TEST_DATASET_TABLE_PATH = "./dataset_table/test_dt4.db"
 
 # フィーチャ抽出結果の保存ディレクトリ設定
-FEATURE_TABLE_PATH = "./feature_table/ft5.db"
+FEATURE_TABLE_PATH = "./feature_table/ft4.db"
 
 # 学習率の更新scheduleの設定
 LR_SCHEDULING = lr_patterns.lr_v1
