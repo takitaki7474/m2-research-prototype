@@ -9,7 +9,7 @@ import os
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model_ver1", "-mv1", type=str, default="v1", help="model name of the comparison1 to compare loss")
-    parser.add_argument("--model_ver2", "-mv2", type=str, default="v2", help="model name of the comparison2 to compare loss")
+    #parser.add_argument("--model_ver2", "-mv2", type=str, default="v2", help="model name of the comparison2 to compare loss")
     args = parser.parse_args()
     return args
 
@@ -34,7 +34,7 @@ def eval1(err_speed1: float, err_speed2: float) -> int:
 
 def eval2(err_speed: float) -> int:
     result = 0
-    std = 25.0
+    std = 40.0
     if err_speed >= std:
         result = 1
     return result
@@ -53,9 +53,9 @@ RESULT_DIR = inifile.get("TrainResultDirs", "domain_result")
 
 if __name__=="__main__":
     args = get_args()
-    path2 = os.path.join(RESULT_DIR, args.model_ver2, "err_speed.json")
-    err_speed2 = load_train_err_speed(jsonpath=path2)
+    #path2 = os.path.join(RESULT_DIR, args.model_ver2, "err_speed.json")
+    #err_speed2 = load_train_err_speed(jsonpath=path2)
     path1 = os.path.join(RESULT_DIR, args.model_ver1, "err_speed.json")
     err_speed1 = load_train_err_speed(jsonpath=path1)
-    result = eval1(err_speed1, err_speed2)
+    result = eval2(err_speed1)
     print(result)
