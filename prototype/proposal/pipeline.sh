@@ -1,20 +1,20 @@
 #!/bin/bash
 
 
-LOOPS=20
-MODEL_VERS=("v1" "v2" "v3" "v4" "v5" "v6" "v7" "v8" "v9" "v10" "v11" "v12" "v13" "v14" "v15" "v16" "v17" "v18" "v19" "v20")
-BASE_RESULT_VERS=("None" "v1" "v2" "v3" "v4" "v5" "v6" "v7" "v8" "v9" "v10" "v11" "v12" "v13" "v14" "v15" "v16" "v17" "v18" "v19")
+LOOPS=27
+MODEL_VERS=("v1" "v2" "v3" "v4" "v5" "v6" "v7" "v8" "v9" "v10" "v11" "v12" "v13" "v14" "v15" "v16" "v17" "v18" "v19" "v20" "v21" "v22" "v23" "v24" "v25" "v26" "v27")
+BASE_RESULT_VERS=("None" "v1" "v2" "v3" "v4" "v5" "v6" "v7" "v8" "v9" "v10" "v11" "v12" "v13" "v14" "v15" "v16" "v17" "v18" "v19" "v20" "v21" "v22" "v23" "v24" "v25" "v26")
 INI_TRAIN_NUM=40
 ADD_TRAIN_NUM=40
 INI_TEST_NUM=10
 ADD_TEST_NUM=10
 LEARNING_RATE=0.01
-SEED=8
+SEED=0
 EPOCHS=100
 
 
 eval_result=0
-for ((i=0; i<LOOPS; i++))
+for ((i=25; i<LOOPS; i++))
 do
   echo -e "\nstating ..."
 
