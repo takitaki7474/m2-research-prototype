@@ -25,7 +25,7 @@ CLASS_NUM = 3
 MODEL = domain_models.LeNet3(CLASS_NUM)
 
 # クエリ数の設定
-QUERY_NUM = 1
+QUERY_NUM = 3
 
 # データセットテーブルの読み込みディレクトリ設定
 FEATURE_TABLE_PATH = "./feature_table/ft.db"
@@ -92,7 +92,8 @@ if __name__=="__main__":
     _ = selector.select_NN_ft_indexes(dataN=dataN_queryby)
     if dataN_randomly != 0:
         _ = selector.randomly_select_dt_indexes(dataN=dataN_randomly, seed=args.seed)
-    train = selector.get_dataset()
+    train_ft_indexes = selector.get_dt_indexes()
+    train = selector.get_dataset(indexes_labelby=train_ft_indexes["selected_data"])
     handle_dt_indexes.save_dt_indexes(train_ft_indexes, savepath=ADDED_TRAIN_FT_INDEXES_PATH)
     print("Number of train data: {0}".format(len(train)))
     trainloader = torch.utils.data.DataLoader(train, batch_size=args.batch_size, shuffle=True, num_workers=2)
@@ -106,7 +107,8 @@ if __name__=="__main__":
         test_dt_indexes = handle_dt_indexes.load_dt_indexes(path=BASE_TEST_DT_INDEXES_PATH)
     selector = dataselector.DataSelector(test_dt, test_dt_indexes)
     _ = selector.randomly_select_dt_indexes(dataN=args.add_test, seed=args.seed)
-    test = selector.get_dataset()
+    test_dt_indexes = selector.get_dt_indexes()
+    test = selector.get_dataset(indexes_labelby=test_dt_indexes["selected_data"])
     handle_dt_indexes.save_dt_indexes(test_dt_indexes, savepath=ADDED_TEST_DT_INDEXES_PATH)
     print("Number of test data: {0}".format(len(test)))
     testloader = torch.utils.data.DataLoader(test, batch_size=args.test_batch_size, shuffle=False, num_workers=2)
