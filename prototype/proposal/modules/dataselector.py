@@ -1,3 +1,4 @@
+import copy
 import faiss
 import json
 import numpy as np
@@ -6,60 +7,67 @@ import random
 import sqlite3
 import sys
 import torch
-from typing import List, Tuple, TypeVar, Dict
+from typing import TypeVar, List, Tuple, Dict
 
 Dataframe = TypeVar("pandas.core.frame.DataFrame")
+Tensor = TypeVar("torch.Tensor")
+NpInt64 = TypeVar("numpy.int64")
 
 
 
 
 class DataSelector:
-    def __init__(self, dataset_table: Dataframe, dataset_table_indexes: Dict[str, List[int]]):
-        self.dt = dataset_table
-        self.dt_indexes = dataset_table_indexes
-        self.labels = sorted(dataset_table["label"].unique())
-        # 選択済みのデータを削除済みのdataset_table
-        self.dropped_dt = self.__drop_selected_data(dataset_table, dataset_table_indexes)
+    def __init__(self, dt: Dataframe, dt_indexes: Dict[str, Dict[int, List]]):
+        self.default_dt = dt
+        self.dt_indexes = copy.deepcopy(dt_indexes)
+        self.labels = sorted(dt["label"].unique())
+        # 学習済みのデータを削除したdataset_table
+        self.dt = self.__init_dt(dt, dt_indexes)
 
-    def __drop_selected_data(self, dataset_table: Dataframe, dataset_table_indexes: Dict[str, List[int]]) -> Dataframe:
-        dt = dataset_table.drop(index=dataset_table_indexes["selected"])
-        dt = dt.reset_index(drop=True)
+    def __init_dt(self, dt: Dataframe, dt_indexes: Dict[str, Dict[int, List]]) -> Dataframe:
+        drop_indexes = []
+        for indexes in dt_indexes["selected_data"].values():
+            drop_indexes += indexes
+        dt = dt.drop(index=drop_indexes)
         return dt
 
-    def randomly_add(self, dataN: int, seed=None) -> Tuple[Dict[str, List[int]], List[int]]:
-        selected_indexes = []
-        dt_labelby = self.dropped_dt.groupby("label")
-        for label in self.labels:
-            df = dt_labelby.get_group(label)
-            df = df.sample(n=dataN, random_state=seed)
-            selected_indexes += list(df["index"].values)
-            self.dt_indexes["selected"] += list(df["index"].values)
-        return self.dt_indexes, selected_indexes
+    def __convert_to_tensor_image(self, json_image) -> Tensor:
+        image = json.loads(json_image)
+        image = np.array(image)
+        image = torch.from_numpy(image.astype(np.float32)).clone()
+        return image
 
-    def out_dataset_table_indexes(self) -> Dict[str, List[int]]:
+    def drop_data(self, indexes: List):
+        self.dt = self.dt.drop(index=indexes)
+
+    def get_dt_indexes(self) -> Dict[str, Dict[int, List]]:
         return self.dt_indexes
 
-    def out_selected_dataset(self) -> List[Tuple]:
-        selected_dataset = []
-        for index in self.dt_indexes["selected"]:
-            irow = self.dt[self.dt["index"]==index]
-            image = json.loads(irow["image"].iloc[0])
-            image = np.array(image)
-            image = torch.from_numpy(image.astype(np.float32)).clone()
-            label = irow["label"].iloc[0]
-            selected_dataset.append((image, label))
-        return selected_dataset
-
-    def out_dataset(self, dt_indexes:List[int]) -> List[Tuple]:
+    def get_dataset(self, indexes_labelby: Dict[int, List]) -> List[Tuple[Tensor, NpInt64]]:
         dataset = []
-        for index in dt_indexes:
-            irow = self.dt[self.dt["index"]==index]
-            image = json.loads(irow["image"].iloc[0])
-            image = np.array(image)
-            image = torch.from_numpy(image.astype(np.float32)).clone()
-            label = irow["label"].iloc[0]
-            dataset.append((image, label))
+        dt_labelby = self.default_dt.groupby("label")
+        for label in self.labels:
+            indexes = indexes_labelby[label]
+            dt = dt_labelby.get_group(label)
+            rows = dt[dt["index"].isin(indexes)]
+            images = rows["image"].values
+            labels = rows["label"].values
+            for image, label in zip(images, labels):
+                image = self.__convert_to_tensor_image(image)
+                dataset.append((image, label))
         return dataset
+
+    def randomly_select_dt_indexes(self, dataN: int, seed=0) -> Dict[int, List]:
+        indexes_labelby = {}
+        dt_labelby = self.dt.groupby("label")
+        for label in self.labels:
+            dt = dt_labelby.get_group(label)
+            dt = dt.sample(n=dataN, random_state=seed)
+            selected_indexes = list(dt["index"].values)
+            indexes_labelby[label] = selected_indexes
+            self.dt_indexes["selected_data"][label] += selected_indexes
+            self.drop_data(selected_indexes)
+        return indexes_labelby
 
 
 
