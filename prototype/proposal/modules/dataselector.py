@@ -2,16 +2,14 @@ import copy
 import faiss
 import json
 import numpy as np
-import pandas as pd
-import random
-import sqlite3
-import sys
 import torch
 from typing import TypeVar, List, Tuple, Dict
 
 Dataframe = TypeVar("pandas.core.frame.DataFrame")
 Tensor = TypeVar("torch.Tensor")
 NpInt64 = TypeVar("numpy.int64")
+NpArrayFloat32 = TypeVar("numpy.ndarray.float32")
+FaissIndexFlatL2 = TypeVar("faiss.swigfaiss.IndexFlatL2")
 
 
 
@@ -73,63 +71,95 @@ class DataSelector:
 
 
 class FeatureSelector(DataSelector):
-    def __init__(self, feature_table: Dataframe, feature_table_indexes: Dict[str, List[int]]):
-        super().__init__(feature_table, feature_table_indexes)
-        self.faiss_indexes = {} # ラベルごとのフィーチャ全体のfaissインデックス
+    def __init__(self, ft: Dataframe, ft_indexes: Dict[str, Dict[int, List]]):
+        super().__init__(ft, ft_indexes)
 
-    # フィーチャを検索するための,フィーチャ全体のfaissインデックスを作成
-    def make_faiss_indexes(self):
-        dt_labelby = self.dropped_dt.groupby("label")
-        for label in self.labels:
-            features = []
-            df = dt_labelby.get_group(label)
-            for feature in df["feature"]:
-                features.append(json.loads(feature))
-            features = np.array(features).astype("float32")
-            dim = len(features[0])
-            index = faiss.IndexFlatL2(dim)
-            index.add(features)
-            self.faiss_indexes[label] = index
+    def __ft_to_features(self, ft: Dataframe) -> NpArrayFloat32:
+        features = [json.loads(f) for f in ft["feature"]]
+        features = np.array(features).astype("float32")
+        return features
 
-    # ラベルごとにクエリと最近傍(NN)のフィーチャをdataN分選択し、選択したフィーチャのdt_indexesをdt_indexes["selected"]に追加
-    def add_NN(self, dataN: int) -> Tuple[Dict[str, List[int]], List[int]]:
-        if len(self.faiss_indexes) is 0:
-            print("\nPlease run the process to make faiss indexes in advance.")
-            sys.exit()
-        selected_indexes = []
-        dt_labelby = self.dropped_dt.groupby("label")
-        for label in self.labels:
-            index = self.faiss_indexes[label]
-            k = index.ntotal # 検索対象データ数
-            query = self.dropped_dt[self.dropped_dt["index"]==self.dt_indexes["query"][label]]["feature"].iat[0] # queryに指定されたフィーチャを取得
-            query = json.loads(query)
-            query = np.array([query]).astype("float32")
-            D, I = index.search(query, k)
-            self.dt_indexes["selected_query"].append(self.dt_indexes["query"][label])
-            for i in I[0][:dataN + 1]:
-                train_index = dt_labelby.get_group(label).iloc[i]["index"]
-                if train_index == self.dt_indexes["query"][label]: continue # クエリはselectedに含めない
-                selected_indexes.append(train_index)
-                self.dt_indexes["selected"].append(train_index)
-        return self.dt_indexes, selected_indexes
+    def __indexes_to_features(self, ft: Dataframe, indexes: List[int]) -> NpArrayFloat32:
+        features = []
+        for index in indexes:
+            feature = ft[ft["index"] == index]["feature"].iloc[0]
+            feature = json.loads(feature)
+            features.append(feature)
+        features = np.array(features).astype("float32")
+        if len(features) != len(indexes): print("There is a feature that cannot be obtained")
+        return features
 
-    # クエリを最遠傍点(FP)に更新
-    def update_FP_queries(self) -> Dict[str, List[int]]:
-        if len(self.faiss_indexes) is 0:
-            print("\nPlease run the process to make faiss indexes in advance.")
-            sys.exit()
-        dt_labelby = self.dropped_dt.groupby("label")
+    def __generate_faiss_index(self, vectors: NpArrayFloat32) -> FaissIndexFlatL2:
+        dim = len(vectors[0])
+        faiss_index = faiss.IndexFlatL2(dim)
+        faiss_index.add(vectors)
+        return faiss_index
+
+    def __search_NN_ft_indexes(self, ft: Dataframe, query_ft_indexes: List[int], dataN: int) -> List[int]:
+        queries = self.__indexes_to_features(ft, query_ft_indexes)
+        features = self.__ft_to_features(ft)
+        faiss_index = self.__generate_faiss_index(features)
+        k = faiss_index.ntotal # 検索対象データ数
+        D, I = faiss_index.search(queries, k) # 近傍探索
+
+        NN_ft_indexes = []
+        all_query_indexes = [index for indexes in self.dt_indexes["queries"].values() for index in indexes]
+        for indexes in I:
+            cnt, i = 0, 0
+            while cnt < dataN:
+                ft_index = ft.iloc[indexes[i]]["index"]
+                i += 1
+                if ft_index in NN_ft_indexes: continue # 既に選択済みのインデックスは検索対象外
+                if ft_index in all_query_indexes: continue # クエリは検索対象外
+                NN_ft_indexes.append(ft_index)
+                cnt += 1
+
+        return NN_ft_indexes
+
+    def __search_FP_ft_indexes(self, ft: Dataframe, query_ft_indexes: List[int]) -> List[int]:
+        queries = self.__indexes_to_features(ft, query_ft_indexes)
+        features = self.__ft_to_features(ft)
+        faiss_index = self.__generate_faiss_index(features)
+        k = faiss_index.ntotal # 検索対象データ数
+        D, I = faiss_index.search(queries, k) # 近傍探索
+
+        FP_ft_indexes = []
+        all_used_query_indexes = [index for indexes in self.dt_indexes["used_queries"].values() for index in indexes]
+        for indexes in I:
+            for index in reversed(indexes):
+                ft_index = ft.iloc[index]["index"]
+                if ft_index in FP_ft_indexes: continue # 既に選択済みのインデックスは検索対象外
+                if ft_index not in all_used_query_indexes: break # 一度でも使用されたクエリは検索対象外
+            FP_ft_indexes.append(ft_index)
+
+        return FP_ft_indexes
+
+    def select_NN_ft_indexes(self, dataN: int) -> Dict[int, List]:
+        indexes_labelby = {}
+        ft_labelby = self.dt.groupby("label")
+
         for label in self.labels:
-            index = self.faiss_indexes[label]
-            k = index.ntotal # 検索対象データ数
-            query = self.dropped_dt[self.dropped_dt["index"]==self.dt_indexes["query"][label]]["feature"].iat[0] # queryに指定されたフィーチャを取得
-            query = json.loads(query)
-            query = np.array([query]).astype("float32")
-            D, I = index.search(query, k)
-            for i in reversed(I[0]):
-                FP_query_index = dt_labelby.get_group(label).iloc[i]["index"]
-                if FP_query_index not in self.dt_indexes["selected_query"]:
-                    break
-            self.dt_indexes["query"][label] = FP_query_index
-        print("Updated query to Farthest point.")
-        return self.dt_indexes
+            ft = ft_labelby.get_group(label)
+            query_ft_indexes = self.dt_indexes["queries"][label]
+            NN_ft_indexes = self.__search_NN_ft_indexes(ft, query_ft_indexes, dataN)
+
+            indexes_labelby[label] = NN_ft_indexes
+            self.dt_indexes["selected_data"][label] += NN_ft_indexes
+            self.dt_indexes["used_queries"][label] += query_ft_indexes
+            self.drop_data(NN_ft_indexes)
+
+        return indexes_labelby
+
+    def update_to_FP_queries(self) -> Dict[int, List]:
+        indexes_labelby = {}
+        ft_labelby = self.dt.groupby("label")
+
+        for label in self.labels:
+            ft = ft_labelby.get_group(label)
+            query_ft_indexes = self.dt_indexes["queries"][label]
+            FP_ft_indexes = self.__search_FP_ft_indexes(ft, query_ft_indexes)
+
+            indexes_labelby[label] = FP_ft_indexes
+            self.dt_indexes["queries"][label] = FP_ft_indexes
+
+        return indexes_labelby
