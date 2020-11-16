@@ -6,13 +6,6 @@ from typing import TypeVar, Dict
 
 Dataframe = TypeVar("pandas.core.frame.DataFrame")
 
-# datasetをsqliteからDataFrame形式で読み込み
-def load_dataset(dbpath="./ft.db", tablename="feature_table") -> Dataframe:
-    conn = sqlite3.connect(dbpath)
-    c = conn.cursor()
-    dataset = pd.read_sql('SELECT * FROM ' + tablename, conn)
-    return dataset
-
 def init_dt_indexes(dt: Dataframe) -> Dict[str, Dict]:
     labels = sorted(dt["label"].unique())
     dt_indexes = {}
