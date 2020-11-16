@@ -12,48 +12,6 @@ Dataframe = TypeVar("pandas.core.frame.DataFrame")
 
 
 
-# dataset_table_indexes(dt_indexes) をランダムに初期化
-def init_dataset_table_indexes() -> Dict[str, List]:
-    dt_indexes = {}
-    dt_indexes["selected"] = []
-    return dt_indexes
-
-# dataset_table_indexes(dt_indexes) をjson形式で保存
-def save_dataset_table_indexes(dt_indexes: Dict[str, List[int]], savepath="./dt_indexes_v1.json"):
-    dt_indexes["selected"] = [int(index) for index in dt_indexes["selected"]]
-    with open(savepath, "w") as f:
-        json.dump(dt_indexes, f, indent=4)
-
-# feature_table_indexes(ft_indexes) をランダムに初期化
-def init_feature_table_indexes(feature_table: Dataframe, seed=1) -> Dict[str, List[int]]:
-    random.seed(seed)
-    ft_indexes = {} # feature_table_indexes
-    ft_indexes["selected"], ft_indexes["query"], ft_indexes["selected_query"] = [], [], []
-    labels = sorted(feature_table["label"].unique())
-    ft_labelby = feature_table.groupby("label")
-    for label in labels:
-        df = ft_labelby.get_group(label)
-        queries = df["index"].values.tolist()
-        query = random.sample(queries, 1)[0]
-        ft_indexes["query"].append(query)
-    return ft_indexes
-
-# feature_table_indexes(ft_indexes) をjson形式で保存
-def save_feature_table_indexes(ft_indexes: Dict[str, List[int]], savepath="./ft_indexes_v1.json"):
-    ft_indexes["selected"] = [int(index) for index in ft_indexes["selected"]]
-    ft_indexes["query"] = [int(index) for index in ft_indexes["query"]]
-    ft_indexes["selected_query"] = [int(index) for index in ft_indexes["selected_query"]]
-    with open(savepath, "w") as f:
-        json.dump(ft_indexes, f, indent=4)
-
-# table_indexes(ft_indexes, dt_indexes) を辞書形式で読み込み
-def load_table_indexes(path: str) -> Dict[str, List[int]]:
-    with open(path, "r") as f:
-        table_indexes = json.load(f)
-    return table_indexes
-
-
-
 
 class DataSelector:
     def __init__(self, dataset_table: Dataframe, dataset_table_indexes: Dict[str, List[int]]):
