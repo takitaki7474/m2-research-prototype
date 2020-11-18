@@ -57,5 +57,6 @@ if __name__=="__main__":
     #err_speed2 = load_train_err_speed(jsonpath=path2)
     path1 = os.path.join(RESULT_DIR, args.model_ver1, "err_speed.json")
     err_speed1 = load_train_err_speed(jsonpath=path1)
+    #result = eval1(err_speed1, err_speed2)
     result = eval2(err_speed1)
     print(result)

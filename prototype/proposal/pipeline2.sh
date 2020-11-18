@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LOOPS=27
+LOOPS=20
 MODEL_VERS=("v1" "v2" "v3" "v4" "v5" "v6" "v7" "v8" "v9" "v10" "v11" "v12" "v13" "v14" "v15" "v16" "v17" "v18" "v19" "v20" "v21" "v22" "v23" "v24" "v25" "v26" "v27")
 BASE_RESULT_VERS=("None" "v1" "v2" "v3" "v4" "v5" "v6" "v7" "v8" "v9" "v10" "v11" "v12" "v13" "v14" "v15" "v16" "v17" "v18" "v19" "v20" "v21" "v22" "v23" "v24" "v25" "v26")
 INI_TRAIN_NUM=40
@@ -19,7 +19,8 @@ do
   if [ $i -eq 0 ]; then
     params="-mn ${MODEL_VERS[$i]} -tr $INI_TRAIN_NUM -te $INI_TEST_NUM -e $EPOCHS -lr $LEARNING_RATE -s $SEED -eval 0"
   else
-    eval_result=$(python comp_loss.py -mv1 ${BASE_RESULT_VERS[$i]})
+    #eval_result=$(python comp_loss.py -mv1 ${BASE_RESULT_VERS[$i]})
+    eval_result=1
     params="-mn ${MODEL_VERS[$i]} -bv ${BASE_RESULT_VERS[$i]} -tr $ADD_TRAIN_NUM -te $ADD_TEST_NUM -e $EPOCHS -lr $LEARNING_RATE -s $SEED -eval $eval_result"
   fi
 
