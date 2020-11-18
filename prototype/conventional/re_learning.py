@@ -18,11 +18,12 @@ inifile = configparser.SafeConfigParser()
 inifile.read("./settings.ini")
 
 # 学習モデルの設定
-MODEL = models.LeNet3(3)
+CLASS_NUM = 4
+MODEL = models.LeNet4(CLASS_NUM)
 
 # データセットテーブルの読み込みディレクトリ設定
-TRAIN_DATASET_TABLE_PATH = "./dataset_table/train_dt.db"
-TEST_DATASET_TABLE_PATH = "./dataset_table/test_dt.db"
+TRAIN_DATASET_TABLE_PATH = "./dataset_table/train_dt4.db"
+TEST_DATASET_TABLE_PATH = "./dataset_table/test_dt4.db"
 
 # 学習率の更新scheduleの設定
 LR_SCHEDULING = lr_patterns.lr_v1

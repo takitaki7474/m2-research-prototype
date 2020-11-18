@@ -5,7 +5,7 @@ import json
 # n: 誤差の傾きの計測範囲
 # Ep: pエポックにおける訓練誤差
 # 訓練誤差収束速度: S = Σ-a/k(Enk - Enk-n+1)
-def eval_err_speed(losses, a=50, n=20):
+def eval_err_speed(losses, a=50, n=10):
     err_speed = 0.0
     E = losses
     maxepoch = len(losses)
