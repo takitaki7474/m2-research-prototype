@@ -134,6 +134,27 @@ class FeatureSelector(DataSelector):
 
         return FP_ft_indexes
 
+    def __search_MP_ft_indexes(self, ft: Dataframe, query_ft_indexes: List[int]) -> List[int]:
+        queries = self.__indexes_to_features(ft, query_ft_indexes)
+        features = self.__ft_to_features(ft)
+        faiss_index = self.__generate_faiss_index(features)
+        k = faiss_index.ntotal # 検索対象データ数
+        D, I = faiss_index.search(queries, k) # 近傍探索
+
+        MP_ft_indexes=[]
+        all_used_query_indexes = [index for indexes in self.dt_indexes["used_queries"].values() for index in indexes]
+        for indexes in I:
+            while (1):
+                i = k//2
+                index = indexes[i]
+                ft_index = ft.iloc[index]["index"]
+                i += 1
+                if ft_index in MP_ft_indexes: continue # 既に選択済みのインデックスは検索対象外
+                if ft_index not in all_used_query_indexes: break # 一度でも使用されたクエリは検索対象外
+            MP_ft_indexes.append(ft_index)
+
+        return MP_ft_indexes
+
     def select_NN_ft_indexes(self, dataN: int) -> Dict[int, List]:
         indexes_labelby = {}
         ft_labelby = self.dt.groupby("label")
@@ -150,10 +171,11 @@ class FeatureSelector(DataSelector):
 
         return indexes_labelby
 
+    # クエリをFP(最遠傍点)へ更新
     def update_to_FP_queries(self) -> Dict[int, List]:
         indexes_labelby = {}
         ft_labelby = self.dt.groupby("label")
-
+        
         for label in self.labels:
             ft = ft_labelby.get_group(label)
             query_ft_indexes = self.dt_indexes["queries"][label]
@@ -161,5 +183,20 @@ class FeatureSelector(DataSelector):
 
             indexes_labelby[label] = FP_ft_indexes
             self.dt_indexes["queries"][label] = FP_ft_indexes
+
+        return indexes_labelby
+
+    # クエリをMP(中間点)へ更新
+    def update_to_MP_queries(self) -> Dict[int, List]:
+        indexes_labelby = {}
+        ft_labelby = self.dt.groupby("label")
+
+        for label in self.labels:
+            ft = ft_labelby.get_group(label)
+            query_ft_indexes = self.dt_indexes["queries"][label]
+            MP_ft_indexes = self.__search_MP_ft_indexes(ft, query_ft_indexes)
+
+            indexes_labelby[label] = MP_ft_indexes
+            self.dt_indexes["queries"][label] = MP_ft_indexes
 
         return indexes_labelby
