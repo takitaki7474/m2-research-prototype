@@ -14,7 +14,7 @@ EPOCHS=100
 
 
 eval_result=0
-for ((i=25; i<LOOPS; i++))
+for ((i=0; i<LOOPS; i++))
 do
   echo -e "\nstating ..."
 

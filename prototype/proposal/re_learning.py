@@ -25,11 +25,11 @@ CLASS_NUM = 3
 MODEL = domain_models.LeNet3(CLASS_NUM)
 
 # クエリ数の設定
-QUERY_NUM = 3
+QUERY_NUM = 13
 
 # データセットテーブルの読み込みディレクトリ設定
-FEATURE_TABLE_PATH = "./feature_table/ft.db"
-TEST_DATASET_TABLE_PATH = "./dataset_table/test_dt.db"
+FEATURE_TABLE_PATH = "./feature_table/ft3.db"
+TEST_DATASET_TABLE_PATH = "./dataset_table/test_dt3.db"
 
 # 学習率の更新scheduleの設定
 LR_SCHEDULING = lr_patterns.lr_v1
@@ -86,7 +86,8 @@ if __name__=="__main__":
         train_ft_indexes = handle_dt_indexes.load_dt_indexes(path=BASE_TRAIN_FT_INDEXES_PATH)
     selector = dataselector.FeatureSelector(train_ft, train_ft_indexes)
     if ERR_SPEED_EVAL == 1: # 訓練誤差収束速度が基準を満たした場合
-        _ = selector.update_to_FP_queries() # クエリを最遠傍点(FP)に更新
+        # _ = selector.update_to_FP_queries() # クエリを最遠傍点(FP)に更新
+        _ = selector.update_to_MP_queries()
     dataN_queryby = args.add_train // QUERY_NUM
     dataN_randomly = args.add_train % QUERY_NUM
     _ = selector.select_NN_ft_indexes(dataN=dataN_queryby)
@@ -131,4 +132,4 @@ if __name__=="__main__":
 
     # 学習の設定値の記録
     net_name = MODEL.__class__.__name__
-    argument.save_args(args, LEARN_SETTINGS_PATH, net=net_name, total_train=len(train), total_test=len(test), train_err_speed=train_err_speed, test_err_speed=test_err_speed)
+    argument.save_args(args, LEARN_SETTINGS_PATH, net=net_name, queryN=QUERY_NUM, total_train=len(train), total_test=len(test), train_err_speed=train_err_speed, test_err_speed=test_err_speed)
