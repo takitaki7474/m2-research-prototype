@@ -21,15 +21,15 @@ inifile = configparser.SafeConfigParser()
 inifile.read("./settings.ini")
 
 # 学習モデルの設定
-CLASS_NUM = 4
-MODEL = domain_models.LeNet4(CLASS_NUM)
+CLASS_NUM = 3
+MODEL = domain_models.LeNet3(CLASS_NUM)
 
 # クエリ数の設定
-QUERY_NUM = 1
+QUERY_NUM = 13
 
 # データセットテーブルの読み込みディレクトリ設定
-FEATURE_TABLE_PATH = "./feature_table/ft4.db"
-TEST_DATASET_TABLE_PATH = "./dataset_table/test_dt4.db"
+FEATURE_TABLE_PATH = "./feature_table/ft3.db"
+TEST_DATASET_TABLE_PATH = "./dataset_table/test_dt3.db"
 
 # 学習率の更新scheduleの設定
 LR_SCHEDULING = lr_patterns.lr_v1
