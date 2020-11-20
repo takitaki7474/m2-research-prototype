@@ -25,7 +25,7 @@ CLASS_NUM = 3
 MODEL = domain_models.LeNet3(CLASS_NUM)
 
 # クエリ数の設定
-QUERY_NUM = 13
+QUERY_NUM = 4
 
 # データセットテーブルの読み込みディレクトリ設定
 FEATURE_TABLE_PATH = "./feature_table/ft3.db"
