@@ -6,7 +6,7 @@ from typing import TypeVar, Dict
 
 Dataframe = TypeVar("pandas.core.frame.DataFrame")
 
-def init_dt_indexes(dt: Dataframe) -> Dict[str, Dict]:
+def blank_dt_indexes(dt: Dataframe) -> Dict[str, Dict]:
     labels = sorted(dt["label"].unique())
     dt_indexes = {}
     dt_indexes["selected_data"] = {}
@@ -15,22 +15,14 @@ def init_dt_indexes(dt: Dataframe) -> Dict[str, Dict]:
     return dt_indexes
 
 # feature_table_indexesの初期化 (queryはランダムに選択)
-def init_ft_indexes(ft: Dataframe, queryN=1, seed=0) -> Dict[str, Dict]:
-    random.seed(seed)
+def blank_ft_indexes(ft: Dataframe) -> Dict[str, Dict]:
     labels = sorted(ft["label"].unique())
-    ft_labelby = ft.groupby("label")
     ft_indexes = {}
     ft_indexes["queries"], ft_indexes["used_queries"], ft_indexes["selected_data"],  = {}, {}, {}
-
     for label in labels:
         ft_indexes["used_queries"][label] = []
         ft_indexes["selected_data"][label] = []
-
-        ft = ft_labelby.get_group(label)
-        indexes = ft["index"].values.tolist()
-        queries = random.sample(indexes, queryN)
-        ft_indexes["queries"][label] = queries
-
+        ft_indexes["queries"][label] = []
     return ft_indexes
 
 def save_dt_indexes(dt_indexes: Dict[int, Dict], savepath="./dt_indexes.json"):

@@ -160,6 +160,32 @@ class FeatureSelector(DataSelector):
 
         return MP_ft_indexes
 
+    def init_ft_indexes(self, queryN=1, seed=0) -> Dict[str, Dict[int, List]]:
+        ft_indexes = {}
+        ft_indexes["queries"], ft_indexes["used_queries"], ft_indexes["selected_data"],  = {}, {}, {}
+        ft_labelby = self.default_dt.groupby("label")
+
+        for label in self.labels:
+            ft_indexes["selected_data"][label] = []
+            ft_indexes["used_queries"][label] = []
+            ft = ft_labelby.get_group(label)
+            query = json.loads(ft.sample(n=1, random_state=seed)["feature"].iloc[0])
+            query = np.array([query]).astype("float32")
+            features = self.__ft_to_features(ft)
+            faiss_index = self.__generate_faiss_index(features)
+            k = faiss_index.ntotal
+            linspace = k//queryN
+            D, I = faiss_index.search(query, k)
+
+            indexes = I[0][::linspace][:queryN]
+            tmp_ft_indexes = []
+            for index in indexes:
+                ft_index = ft.iloc[index]["index"]
+                tmp_ft_indexes.append(ft_index)
+            ft_indexes["queries"][label] = tmp_ft_indexes
+
+        return ft_indexes
+
     def select_NN_ft_indexes(self, dataN: int) -> Dict[int, List]:
         indexes_labelby = {}
         ft_labelby = self.dt.groupby("label")
