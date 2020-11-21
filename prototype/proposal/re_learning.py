@@ -25,7 +25,7 @@ CLASS_NUM = 3
 MODEL = domain_models.LeNet3(CLASS_NUM)
 
 # クエリ数の設定
-QUERY_NUM = 4
+QUERY_NUM = 20
 
 # データセットテーブルの読み込みディレクトリ設定
 FEATURE_TABLE_PATH = "./feature_table/ft3.db"
@@ -81,7 +81,9 @@ if __name__=="__main__":
     # 訓練データの選択と生成
     train_ft = pre.load(dbpath=FEATURE_TABLE_PATH)
     if args.base_result_ver is None:
-        train_ft_indexes = handle_dt_indexes.init_ft_indexes(ft=train_ft, queryN=QUERY_NUM, seed=args.seed)
+        blank_ft_indexes = handle_dt_indexes.blank_ft_indexes(ft=train_ft)
+        selector = dataselector.FeatureSelector(train_ft, blank_ft_indexes)
+        train_ft_indexes = selector.init_ft_indexes(queryN=QUERY_NUM, seed=args.seed)
     else:
         train_ft_indexes = handle_dt_indexes.load_dt_indexes(path=BASE_TRAIN_FT_INDEXES_PATH)
     selector = dataselector.FeatureSelector(train_ft, train_ft_indexes)
@@ -103,7 +105,7 @@ if __name__=="__main__":
     # テストデータの選択と生成
     test_dt = pre.load(dbpath=TEST_DATASET_TABLE_PATH)
     if args.base_result_ver is None:
-        test_dt_indexes = handle_dt_indexes.init_dt_indexes(dt=test_dt)
+        test_dt_indexes = handle_dt_indexes.blank_dt_indexes(dt=test_dt)
     else:
         test_dt_indexes = handle_dt_indexes.load_dt_indexes(path=BASE_TEST_DT_INDEXES_PATH)
     selector = dataselector.DataSelector(test_dt, test_dt_indexes)
