@@ -97,7 +97,7 @@ class FeatureSelector(DataSelector):
         return faiss_index
 
     def __search_NN_ft_indexes(self, ft: Dataframe, query_ft_indexes: List[int], dataN: int) -> List[int]:
-        queries = self.__indexes_to_features(self.default_dt, query_ft_indexes)
+        queries = self.__indexes_to_features(ft, query_ft_indexes)
         features = self.__ft_to_features(ft)
         faiss_index = self.__generate_faiss_index(features)
         k = faiss_index.ntotal # 検索対象データ数
@@ -118,7 +118,7 @@ class FeatureSelector(DataSelector):
         return NN_ft_indexes
 
     def __search_FP_ft_indexes(self, ft: Dataframe, query_ft_indexes: List[int]) -> List[int]:
-        queries = self.__indexes_to_features(self.default_dt, query_ft_indexes)
+        queries = self.__indexes_to_features(ft, query_ft_indexes)
         features = self.__ft_to_features(ft)
         faiss_index = self.__generate_faiss_index(features)
         k = faiss_index.ntotal # 検索対象データ数
@@ -135,8 +135,8 @@ class FeatureSelector(DataSelector):
 
         return FP_ft_indexes
 
-    def __search_MP_ft_indexes(self, ft: Dataframe, query_ft_indexes: List[int]) -> List[int]:
-        queries = self.__indexes_to_features(self.default_dt, query_ft_indexes)
+    def __search_ft_indexes_with_rate(self, ft: Dataframe, query_ft_indexes: List[int], rate=1/2) -> List[int]:
+        queries = self.__indexes_to_features(ft, query_ft_indexes)
         features = self.__ft_to_features(ft)
         faiss_index = self.__generate_faiss_index(features)
         k = faiss_index.ntotal # 検索対象データ数
@@ -145,17 +145,13 @@ class FeatureSelector(DataSelector):
         MP_ft_indexes=[]
         all_used_query_indexes = [index for indexes in self.dt_indexes["used_queries"].values() for index in indexes]
         for indexes in I:
-            cnt, i = 0, k//2
+            i = round(k*rate)
             while (1):
-                cnt += 1
                 index = indexes[i]
                 ft_index = ft.iloc[index]["index"]
                 i += 1
                 if ft_index in MP_ft_indexes: continue # 既に選択済みのインデックスは検索対象外
                 if ft_index not in all_used_query_indexes: break # 一度でも使用されたクエリは検索対象外
-                if cnt > k:
-                    print("The maximum number of data has been exceeded")
-                    sys.exit()
             MP_ft_indexes.append(ft_index)
 
         return MP_ft_indexes
@@ -217,17 +213,17 @@ class FeatureSelector(DataSelector):
 
         return indexes_labelby
 
-    # クエリをMP(中間点)へ更新
-    def update_to_MP_queries(self) -> Dict[int, List]:
+    # クエリを指定割合だけ更新
+    def update_queries(self, rate=1/2) -> Dict[int, List]:
         indexes_labelby = {}
         ft_labelby = self.dt.groupby("label")
 
         for label in self.labels:
             ft = ft_labelby.get_group(label)
             query_ft_indexes = self.dt_indexes["queries"][label]
-            MP_ft_indexes = self.__search_MP_ft_indexes(ft, query_ft_indexes)
+            ft_indexes = self.__search_ft_indexes_with_rate(ft, query_ft_indexes, rate)
 
-            indexes_labelby[label] = MP_ft_indexes
-            self.dt_indexes["queries"][label] = MP_ft_indexes
+            indexes_labelby[label] = ft_indexes
+            self.dt_indexes["queries"][label] = ft_indexes
 
         return indexes_labelby
