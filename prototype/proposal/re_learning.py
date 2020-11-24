@@ -28,7 +28,7 @@ MODEL = domain_models.LeNet3(CLASS_NUM)
 QUERY_NUM = 10
 
 # クエリの更新比率
-UPDATE_RATE = 1/4
+#UPDATE_RATE = 1/4
 
 # データセットテーブルの読み込みディレクトリ設定
 FEATURE_TABLE_PATH = "./feature_table/ft3.db"
@@ -92,8 +92,9 @@ if __name__=="__main__":
         train_ft_indexes = handle_dt_indexes.load_dt_indexes(path=BASE_TRAIN_FT_INDEXES_PATH)
     selector = dataselector.FeatureSelector(train_ft, train_ft_indexes)
     if ERR_SPEED_EVAL == 1: # 訓練誤差収束速度が基準を満たした場合
-        # _ = selector.update_to_FP_queries() # クエリを最遠傍点(FP)に更新
-        _ = selector.update_queries(rate=UPDATE_RATE)
+        _ = selector.update_queries(rate=3/4)
+    else:
+        _ = selector.update_queries(rate=1/10)
     dataN_queryby = args.add_train // QUERY_NUM
     dataN_randomly = args.add_train % QUERY_NUM
     _ = selector.select_NN_ft_indexes(dataN=dataN_queryby)
