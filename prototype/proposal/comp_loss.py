@@ -34,7 +34,7 @@ def eval1(err_speed1: float, err_speed2: float) -> int:
 
 def eval2(err_speed: float) -> int:
     result = 0
-    std = 40.0
+    std = 35.0
     if err_speed >= std:
         result = 1
     return result

@@ -8,7 +8,7 @@ ADD_TRAIN_NUM=40
 INI_TEST_NUM=10
 ADD_TEST_NUM=10
 LEARNING_RATE=0.01
-SEED=11
+SEED=6
 EPOCHS=100
 
 for ((i=0; i<LOOPS; i++))
@@ -19,8 +19,8 @@ do
   if [ $i -eq 0 ]; then
     params="-mn ${MODEL_VERS[$i]} -tr $INI_TRAIN_NUM -te $INI_TEST_NUM -e $EPOCHS -lr $LEARNING_RATE -s $SEED -eval 0"
   else
-    #eval_result=$(python comp_loss.py -mv1 ${BASE_RESULT_VERS[$i]})
-    eval_result=1
+    eval_result=$(python comp_loss.py -mv1 ${BASE_RESULT_VERS[$i]})
+    #eval_result=1
     params="-mn ${MODEL_VERS[$i]} -bv ${BASE_RESULT_VERS[$i]} -tr $ADD_TRAIN_NUM -te $ADD_TEST_NUM -e $EPOCHS -lr $LEARNING_RATE -s $SEED -eval $eval_result"
   fi
 
